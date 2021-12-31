@@ -2,8 +2,9 @@ import tkinter as tk
 import random
 import sys
 import os
-from PIL import Image, ImageTk
 import pyscreenshot as ImageGrab
+
+from PIL import Image, ImageTk
 import numpy as np
 
 class Character():
@@ -14,7 +15,7 @@ class Character():
         else:
             self.seed=seed
         self.sz=10
-        self.rnd=random.Random(self.seed)
+        self.rnd=random.Random(int(self.seed))
         self.parts={
                 'backgrounds':{'path':None,'color':None},
                 'bodies':{'path':None,'color':None},
@@ -39,9 +40,10 @@ class Application(tk.Tk):
     
     def __init__(self):
         tk.Tk.__init__(self)
+        self.title("AVATAR CREATOR")
         self.canvasZone=tk.Frame(self, relief=tk.RAISED, borderwidth=1)
         self.optZone=tk.Frame(self, relief=tk.RAISED, borderwidth=1)
-
+    
         self.canvas=tk.Canvas(self.canvasZone,width=500,height=500)
         self.canvas.pack()
         self.sz=1
@@ -90,7 +92,11 @@ class Application(tk.Tk):
             widgets.destroy()
     
     def newCharacterSeed(ctx):
-        newChar=Character(seed=int(ctx.seedField.get("1.0",tk.END+"-1c")))
+        try:
+            seed=int(ctx.seedField.get("1.0",tk.END+"-1c"))
+        except ValueError:
+            seed=0            
+        newChar=Character(seed=seed)
         ctx.drawChar(newChar)
 
     def newCharacter(ctx):
@@ -156,7 +162,6 @@ if __name__ == "__main__":
     newChar=Character()
     print(newChar.seed)
     app = Application()
-    app.title("GUI LP")
     app.drawChar(newChar)
     app.mainloop()
     
