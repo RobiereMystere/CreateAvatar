@@ -36,11 +36,11 @@ class Character():
             ctx.parts[i]['color']=(int(ctx.rnd.random()*255),int(ctx.rnd.random()*255),int(ctx.rnd.random()*255))
 
         print(ctx.parts)
+        
 class Application(tk.Tk):
-
-    
     def __init__(self):
         tk.Tk.__init__(self)
+        self.iconbitmap('icons/icon.ico')
         self.title("AVATAR CREATOR")
         self.canvasZone=tk.Frame(self, relief=tk.RAISED, borderwidth=1)
         self.optZone=tk.Frame(self, relief=tk.RAISED, borderwidth=1)
@@ -51,7 +51,7 @@ class Application(tk.Tk):
         self.pictures=list()
         self.currentCharacter=None
         self.canvasZone.pack(fill=tk.BOTH, expand=True)
-        self.optZone.pack(fill=tk.BOTH, expand=True)
+        self.optZone.pack( expand=True)
 
         self.newCharacterButton=tk.Button(self.optZone,text="REROLL",command=self.newCharacter)
         self.newCharacterButton.grid(row=0,column=1)
@@ -62,8 +62,9 @@ class Application(tk.Tk):
         self.seedLabel = tk.Label(self.optZone, text="Seed" )
         self.seedLabel.grid(row=1,column=0)
 
-        self.seedField=tk.Text(self.optZone, height=1)
+        self.seedField=tk.Entry(self.optZone,width=20)
         self.seedField.grid(row=1,column=1)
+        self.seedField.bind('<Return>', self.newCharacterSeed)
 
         self.seedButton=tk.Button(self.optZone,text="seed",command=self.newCharacterSeed)
         self.seedButton.grid(row=1,column=2)
@@ -71,20 +72,24 @@ class Application(tk.Tk):
         self.filenameLabel = tk.Label(self.optZone, text="File Name" )
         self.filenameLabel.grid(row=2,column=0)
 
-        self.filenameField=tk.Text(self.optZone, height=1)
+        self.filenameField=tk.Entry(self.optZone,width=20)
         self.filenameField.grid(row=2,column=1)
+        self.filenameField.bind('<Return>', self.savePicture)
 
         self.saveButton=tk.Button(self.optZone,text="SAVE",command=self.savePicture)
         self.saveButton.grid(row=2,column=2)
 
-    def savePicture(ctx):
+    def setTextInput(ctx,field,text):
+        field.delete(0,"end")
+        field.insert(0,text)
+
+    def savePicture(ctx,event=None):
         x = tk.Canvas.winfo_rootx(ctx.canvas)
         y = tk.Canvas.winfo_rooty(ctx.canvas)
         w = tk.Canvas.winfo_width(ctx.canvas)
         h = tk.Canvas.winfo_height(ctx.canvas)
-        filename=ctx.filenameField.get("1.0",tk.END+"-1c")
+        filename=ctx.filenameField.get()
         if(len(filename)==0):
-            #filename="default.png"
             filename=str(ctx.currentCharacter.seed)+".png"
         img= ImageGrab.grab(bbox=(x, y, x+w, y+h)).save(filename)
 
@@ -92,9 +97,9 @@ class Application(tk.Tk):
         for widgets in ctx.winfo_children():
             widgets.destroy()
     
-    def newCharacterSeed(ctx):
+    def newCharacterSeed(ctx,event=None):
         try:
-            seed=int(ctx.seedField.get("1.0",tk.END+"-1c"))
+            seed=int(ctx.seedField.get())
         except ValueError:
             seed=0            
         newChar=Character(seed=seed)
@@ -157,7 +162,7 @@ class Application(tk.Tk):
             data[..., :-1][black_areas.T] =(0,0,0)
             data[..., :-1][grey_areas.T] = grey_replacement
             data[..., :-1][green_areas.T] = green_replacement
-            #data[..., :-1][red_areas.T]=red_replacement
+
 
             blank=(redeye==-1)
             
@@ -180,26 +185,6 @@ class Application(tk.Tk):
             np.logical_and(transp_areashead,red_areas,out=blank)
             data[...][blank.T]=(255,0,0,0)
 
-            
-            
-            
-            '''
-            if(trait=='hats'):
-                for i in range(len(data)):
-                    for j in range(len(data[i])):
-                        if(not np.array_equal(data[..., :-1][i][j],[0,0,0]) and not np.array_equal(dataeye[..., :-1][i][j],[0,0,0])):
-                            data[..., :-1][i][j]=red_replacement
-                        if( np.array_equal(data[..., :-1][i][j],[255,0,0]) and np.array_equal(dataeye[i][j],[0,0,0,255])):
-                            data[..., :-1][i][j]=(0,0,0)
-                        if(np.array_equal(data[..., :-1][i][j],[255,0,0]) and not np.array_equal(datahead[..., :-1][i][j],[0,0,0])):
-                            data[..., :-1][i][j]=green_replacement
-                        if( np.array_equal(data[..., :-1][i][j],[255,0,0])
-                            and (np.array_equal(datahead[i][j],[0,0,0,255])
-                                 or np.array_equal(datahead[i][j],[0,0,0,0])
-                                 )):
-                            data[i][j]=(0,0,0,0)
-            
-            '''
             im2 = Image.fromarray(data)
 
             img= ImageTk.PhotoImage(im2)
@@ -208,12 +193,11 @@ class Application(tk.Tk):
             ctx.canvas.create_image(250,250,image=img)
         numberWidth=20
         centerX=267
-        numberPosX=225
         numberPosY=450
         strSeed=str(character.seed)
         numberPosX=centerX-(len(strSeed)*numberWidth)/2
         for digit in (strSeed):
-            #220,450
+
             filepath=os.getcwd()+"/numbers/"+digit+".png"
             img= ImageTk.PhotoImage(file=filepath)
 
@@ -222,16 +206,8 @@ class Application(tk.Tk):
             numberPosX+=20
         ctx.canvas.update()
         ctx.currentCharacter=character
-
-        '''
-        for i in range(0,int(ctx.canvas.cget('width')),character.sz):
-            for j in range(0,int(ctx.canvas.cget('height')),character.sz):
-                n=int(character.rnd.random() * 4096)
-                h='{0:03x}'.format(n)
-                col="#"+h
-                ctx.canvas.create_rectangle( i,j,i+character.sz,j+character.sz ,fill=col,outline="")
-        '''
-
+        ctx.setTextInput(ctx.seedField,str(character.seed))
+        
 if __name__ == "__main__":
     newChar=Character()
     print(newChar.seed)
