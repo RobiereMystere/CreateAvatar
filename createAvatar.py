@@ -14,7 +14,7 @@ class Character():
             self.seed = random.randrange(9999)
         else:
             self.seed=seed
-        #self.seed=5576
+        #self.seed=567
         self.sz=10
         self.rnd=random.Random(int(self.seed))
         self.parts={
@@ -124,12 +124,16 @@ class Application(tk.Tk):
             dataeye = np.array(imeye)
             redeye, greeneye, blueeye, alphaeye = dataeye.T
             white_areaseye = (redeye > light) & (blueeye > light) & (greeneye > light)
+            black_areaseye = (redeye < dark) & (blueeye < dark) & (greeneye < dark) & (alphaeye > 200)
             filepathhead=os.getcwd()+"/"+character.parts['headshapes']['path']
             imhead = Image.open(filepathhead)
             imhead = imhead.convert('RGBA')
             datahead = np.array(imhead)
             redhead, greenhead, bluehead, alphahead = datahead.T
             white_areashead = (redhead > light) & (bluehead > light) & (greenhead > light)
+            grey_areashead = (redhead>=dark)&(redhead<=light) &(bluehead>=dark)&(bluehead<=light) &(greenhead>=dark)&(greenhead<=light)
+            black_areashead = (redhead < dark) & (bluehead < dark) & (greenhead < dark)
+            transp_areashead = (alphahead<10) | ((redhead < dark) & (bluehead < dark) & (greenhead < dark))
 
             light=131
             dark=110
@@ -138,7 +142,8 @@ class Application(tk.Tk):
             black_areas = (red < dark) & (blue < dark) & (green < dark)
             grey_areas = (red>=dark)&(red<=light) &(blue>=dark)&(blue<=light) &(green>=dark)&(green<=light)
             green_areas = (red == 0) & (blue == 0) & (green == 255)
-            
+            red_areas = (red == 255) & (blue == 0) & (green == 0)& (alpha > 200)
+
             grey_replacement=character.parts[trait]['color']
             grey_replacement=(grey_replacement[0]*0.75,grey_replacement[1]*0.75,grey_replacement[2]*0.75)
             
@@ -146,14 +151,39 @@ class Application(tk.Tk):
             green_replacement=(green_replacement[0]*0.75,green_replacement[1]*0.75,green_replacement[2]*0.75)
 
             red_replacement=character.parts['eyes']['color']
-            red_replacement=(red_replacement[0]*0.75,red_replacement[1]*0.75,red_replacement[2]*0.75)
+            red_replacement=(red_replacement[0]*0.75,red_replacement[1]*0.75,red_replacement[2]*0.75,255)
             
             data[..., :-1][white_areas.T] = character.parts[trait]['color']
             data[..., :-1][black_areas.T] =(0,0,0)
-            data[..., :-1][grey_areas.T] =grey_replacement
-            data[..., :-1][green_areas.T] =green_replacement
+            data[..., :-1][grey_areas.T] = grey_replacement
+            data[..., :-1][green_areas.T] = green_replacement
+            #data[..., :-1][red_areas.T]=red_replacement
+
+            blank=(redeye==-1)
+            
+            np.logical_and(red_areas,white_areaseye,out=blank)
+            data[...][blank.T]=red_replacement
+            
+            np.logical_and(white_areashead,red_areas,out=blank)
+            data[...,:-1][blank.T]=green_replacement
+            np.logical_and(red_areas,white_areaseye,out=blank)
+            data[...][blank.T]=red_replacement
+            
+            green_replacement=(green_replacement[0]*0.75,green_replacement[1]*0.75,green_replacement[2]*0.75)
+
+            np.logical_and(grey_areashead,red_areas,out=blank)
+            data[...,:-1][blank.T]=green_replacement
+
+            np.logical_and(black_areaseye,red_areas,out=blank)
+            data[...][blank.T]=(0,0,0,255)
+
+            np.logical_and(transp_areashead,red_areas,out=blank)
+            data[...][blank.T]=(255,0,0,0)
 
             
+            
+            
+            '''
             if(trait=='hats'):
                 for i in range(len(data)):
                     for j in range(len(data[i])):
@@ -169,7 +199,7 @@ class Application(tk.Tk):
                                  )):
                             data[i][j]=(0,0,0,0)
             
-
+            '''
             im2 = Image.fromarray(data)
 
             img= ImageTk.PhotoImage(im2)
