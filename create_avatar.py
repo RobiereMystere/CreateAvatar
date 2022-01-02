@@ -133,7 +133,6 @@ class Application(tk.Tk):
         for trait in character.parts:
             light=200
             dark=10
-            
             #
             data = self.image_file2data(os.getcwd()+"/"+character.parts[trait]['path'])
             dataeye = self.image_file2data(os.getcwd()+"/"+character.parts['eyes']['path'])
@@ -148,17 +147,12 @@ class Application(tk.Tk):
             black_areasglasses = (redglasses < dark)\
                              & (blueglasses < dark)\
                              & (greenglasses < dark)\
-                             & (alphaglasses > 200)            
-            white_areasglasses = (redglasses > light) \
-                             & (blueglasses > light)\
-                             & (greenglasses > light)
+                             & (alphaglasses > 200)
             transp_areashead = (alphahead<10)
-
             whiteb_areasglasses = (redglasses > light)\
                              & (blueglasses > light)\
                              & (greenglasses > light)\
-                             & (alphaglasses > 200)            
-
+                             & (alphaglasses > 200)
             #
             white_areaseye = (redeye > light) \
                              & (blueeye > light)\
@@ -216,7 +210,7 @@ class Application(tk.Tk):
                              red_replacement[1]*0.75,
                              red_replacement[2]*0.75)
             red_replacementg=red_replacement
-            if('glasses/0.png' not in character.parts['glasses']['path']):
+            if 'glasses/0.png' not in character.parts['glasses']['path']:
                 red_replacementg=character.parts['glasses']['color']
                 red_replacementg=((red_replacement[0]*0.75+red_replacementg[0])/2,
                                  (red_replacement[1]*0.75+red_replacementg[1])/2,
