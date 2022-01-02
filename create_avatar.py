@@ -3,7 +3,6 @@ import tkinter as tk
 import random
 import os
 import pyscreenshot as ImageGrab
-
 from PIL import Image, ImageTk
 import numpy as np
 
