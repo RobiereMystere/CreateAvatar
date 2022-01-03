@@ -43,7 +43,8 @@ class Application(tk.Tk):
     """GUI Object."""
     def __init__(self):
         tk.Tk.__init__(self)
-        self.iconbitmap('icons/icon.ico')
+        icon = ImageTk.PhotoImage(file='icons/icon.ico')
+        self.tk.call('wm', 'iconphoto', self._w, icon)
         self.title("AVATAR CREATOR")
         self.canvas_zone=tk.Frame(self, relief=tk.RAISED, borderwidth=1)
         self.opt_zone=tk.Frame(self, relief=tk.RAISED, borderwidth=1)
