@@ -23,6 +23,7 @@ class Character():
                 'eyes':{'path':None,'color':None},
                 'glasses':{'path':None,'color':None},
                 'mouths':{'path':None,'color':None},
+                'moustaches':{'path':None,'color':None},
                 'hats':{'path':None,'color':None}
                 }
         self.generate_traits()
