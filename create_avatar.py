@@ -30,8 +30,8 @@ class Character():
     def generate_traits(self):
         """Randomly Sets traits of the Character."""
         for i in self.parts:
-            files = os.listdir('./'+i)
-            imgpath = i+'/'+self.rnd.choice(files)
+            files = os.listdir('./resources/'+i)
+            imgpath = 'resources/'+i+'/'+self.rnd.choice(files)
             self.parts[i]['path']=imgpath
             self.parts[i]['color']=(
                 int(self.rnd.random()*255),
@@ -103,9 +103,9 @@ class Application(tk.Tk):
                                   pos_y+height))
         img.save(filename)
         #
-    def clear(self):
+    def clear(self,ctx):
         """clears all elements."""
-        for widgets in self.winfo_children():
+        for widgets in ctx.winfo_children():
             widgets.destroy()
         #
     def new_character_seed(self,event=None):
@@ -129,70 +129,71 @@ class Application(tk.Tk):
         #
     def draw_char(self,character=None):
         """Draw a Character."""
+        self.clear(self.canvas)
         if character is None :
             character=self.current_character
         for trait in character.parts:
             light=200
             dark=10
             #
-            data = self.image_file2data(os.getcwd()+"/"+character.parts[trait]['path'])
-            dataeye = self.image_file2data(os.getcwd()+"/"+character.parts['eyes']['path'])
-            datahead = self.image_file2data(os.getcwd()+"/"+character.parts['headshapes']['path'])
-            dataglasses = self.image_file2data(os.getcwd()+"/"+character.parts['glasses']['path'])
-            #
-            red, green, blue, alpha = data.T
-            redeye, greeneye, blueeye, alphaeye = dataeye.T
-            redhead, greenhead, bluehead, alphahead = datahead.T
-            redglasses, greenglasses, blueglasses, alphaglasses = dataglasses.T
-            #
-            black_areasglasses = (redglasses < dark)\
-                             & (blueglasses < dark)\
-                             & (greenglasses < dark)\
-                             & (alphaglasses > 200)
-            transp_areashead = (alphahead<10)
-            whiteb_areasglasses = (redglasses > light)\
-                             & (blueglasses > light)\
-                             & (greenglasses > light)\
-                             & (alphaglasses > 200)
-            #
-            white_areaseye = (redeye > light) \
-                             & (blueeye > light)\
-                             & (greeneye > light)
-            black_areaseye = (redeye < dark)\
-                             & (blueeye < dark)\
-                             & (greeneye < dark)\
-                             & (alphaeye > 200)
-            #
-            white_areashead = (redhead > light)\
-                              & (bluehead > light)\
-                              & (greenhead > light)
-            grey_areashead = (redhead>=dark)\
-                             &(redhead<=light)\
-                             &(bluehead>=dark)\
-                             &(bluehead<=light)\
-                             &(greenhead>=dark)\
-                             &(greenhead<=light)
-            transp_areashead = (alphahead<10)\
-                               | ((redhead < dark)\
+            datas={
+                    trait:{'data':None,
+                        'red':None,
+                        'green':None,
+                        'blue':None,
+                        'alpha':None,
+                        'black_areas':None,
+                        'white_areas':None,
+                        'transp_areas':None,
+                        'red_areas':None,
+                        'green_areas':None,
+                        'grey_areas':None
+                        },
+                    'eyes':{'data':None},
+                    'headshapes':{'data':None},
+                    'glasses':{'data':None}
+                    }
+            for item in datas.items():
+                data = self.image_file2data(os.getcwd()+"/"+character.parts[item[0]]['path'])
+                datas[item[0]]['data']=data
+                datas[item[0]]['red'],datas[item[0]]['green'],datas[item[0]]['blue'],datas[item[0]]['alpha']=datas[item[0]]['data'].T
+                
+                datas[item[0]]['black_areas'] = \
+                        (datas[item[0]]['red'] < dark)\
+                        &(datas[item[0]]['green'] < dark)\
+                        &(datas[item[0]]['blue'] < dark) \
+                        & (datas[item[0]]['alpha'] > 200)
+                datas[item[0]]['white_areas'] = \
+                        (datas[item[0]]['red'] > light)\
+                        &(datas[item[0]]['green'] > light)\
+                        &(datas[item[0]]['blue'] > light) \
+                        & (datas[item[0]]['alpha'] > 200)
+                datas[item[0]]['transp_areas'] = \
+                        (datas[item[0]]['alpha'] < 10)\
+                        |((datas[item[0]]['red'] < dark)\
+                        &(datas[item[0]]['green'] < dark)\
+                        &(datas[item[0]]['blue'] < dark))
+                                
+                datas[item[0]]['grey_areas'] = \
+                        (datas[item[0]]['red'] >=dark)\
+                        &(datas[item[0]]['red'] <=light)\
+                        &(datas[item[0]]['green'] >=dark)\
+                        &(datas[item[0]]['green'] <=light)\
+                        &(datas[item[0]]['blue'] >=dark)\
+                        &(datas[item[0]]['blue'] <=light)
+                datas[item[0]]['transp_areas']=\
+                        (datas[item[0]]['alpha']<10)
+                '''               | ((redhead < dark)\
                                   & (bluehead < dark)\
-                                  & (greenhead < dark))
-            #
-            white_areas = (red > light)\
-                          & (blue > light)\
-                          & (green > light)
-            black_areas = (red < dark)\
-                          & (blue < dark)\
-                          & (green < dark)
-            grey_areas = (red>=dark)&(red<=light)\
-                         &(blue>=dark)&(blue<=light)\
-                         &(green>=dark)&(green<=light)
-            green_areas = (red == 0)\
-                          & (blue == 0)\
-                          & (green == 255)
-            red_areas = (red == 255)\
-                        & (blue == 0)\
-                        & (green == 0)\
-                        & (alpha > 200)
+                                  & (greenhead < dark))'''
+                datas[item[0]]['green_areas'] = \
+                        (datas[item[0]]['red'] == 0)\
+                        &(datas[item[0]]['green'] == 255)\
+                        &(datas[item[0]]['blue'] == 0)
+                datas[item[0]]['red_areas'] = \
+                        (datas[item[0]]['red'] == 255)\
+                        &(datas[item[0]]['green'] == 0)\
+                        &(datas[item[0]]['blue'] == 0)
             #
             grey_replacement=character.parts[trait]['color']
             grey_replacement=(grey_replacement[0]*0.75,
@@ -217,44 +218,27 @@ class Application(tk.Tk):
                                  (red_replacement[1]*0.75+red_replacementg[1])/2,
                                  (red_replacement[2]*0.75+red_replacementg[2])/2)
                 #
-            data[...,:-1][white_areas.T] = character.parts[trait]['color']
-            data[...,:-1][black_areas.T] =(0,0,0)
-            data[...][grey_areas.T] = grey_replacement
-            data[...][green_areas.T] = green_replacement
+            datas[trait]['data'][...,:-1][datas[trait]['white_areas'].T] = character.parts[trait]['color']
+            datas[trait]['data'][...,:-1][datas[trait]['black_areas'].T] = (0,0,0) 
+            datas[trait]['data'][...][datas[trait]['grey_areas'].T] = grey_replacement 
+            datas[trait]['data'][...][datas[trait]['green_areas'].T] = green_replacement 
             #
-            blank=(redeye==-1)
-            #
-            np.logical_and(red_areas,white_areaseye,out=blank)
-            data[...,:-1][blank.T]=red_replacement
-            #
-            np.logical_and(white_areashead,red_areas,out=blank)
-            data[...][blank.T]=green_replacement
-            np.logical_and(red_areas,white_areaseye,out=blank)
-            data[...,:-1][blank.T]=red_replacement
-            #
+            blank=(datas['eyes']['red']==-1)
+            self.replace_color(datas,trait,('eyes','white_areas'),(trait,'red_areas'),red_replacement,blank)
+            self.replace_color(datas,trait,('headshapes','white_areas'),(trait,'red_areas'),green_replacement,blank)
+            self.replace_color(datas,trait,('eyes','white_areas'),(trait,'red_areas'),red_replacement,blank)
             green_replacement=(green_replacement[0]*0.75,
                                green_replacement[1]*0.75,
                                green_replacement[2]*0.75,
                                255)
-            #
-            np.logical_and(grey_areashead,red_areas,out=blank)
-            data[...][blank.T]=green_replacement
-            #
-            np.logical_and(black_areaseye,red_areas,out=blank)
-            data[...][blank.T]=(0,0,0,255)
-            #
-            np.logical_and(black_areasglasses,red_areas,out=blank)
-            data[...][blank.T]=(0,0,0,255)
-            #
-            np.logical_and(whiteb_areasglasses,red_areas,out=blank)
-            data[...,:-1][blank.T]=red_replacementg
-            #
-            np.logical_and(transp_areashead,red_areas,out=blank)
-            data[...][blank.T]=(255,0,0,0)
-            #
-            image2 = Image.fromarray(data)
+            self.replace_color(datas,trait,('headshapes','grey_areas'),(trait,'red_areas'),green_replacement,blank)
+            self.replace_color(datas,trait,('eyes','black_areas'),(trait,'red_areas'),(0,0,0,255),blank)
+            self.replace_color(datas,trait,('glasses','black_areas'),(trait,'red_areas'),(0,0,0,255),blank)
+            self.replace_color(datas,trait,('glasses','white_areas'),(trait,'red_areas'),red_replacementg,blank)
+            self.replace_color(datas,trait,('headshapes','transp_areas'),(trait,'red_areas'),(255,0,0,0),blank)
+            self.replace_color(datas,trait,('headshapes','black_areas'),(trait,'red_areas'),(255,0,0,0),blank)
+            image2 = Image.fromarray(datas[trait]['data'])
             image= ImageTk.PhotoImage(image2)
-            #
             self.pictures.append(image)
             self.canvas.create_image(250,250,image=image)
         number_width=20
@@ -263,7 +247,7 @@ class Application(tk.Tk):
         str_seed=str(character.seed)
         number_pos_x=center_x-(len(str_seed)*number_width)/2
         for digit in (str_seed):
-            filepath=os.getcwd()+"/numbers/"+digit+".png"
+            filepath=os.getcwd()+"/resources/numbers/"+digit+".png"
             img= ImageTk.PhotoImage(file=filepath)
             self.pictures.append(img)
             self.canvas.create_image(number_pos_x,number_pos_y,image=img)
@@ -273,6 +257,20 @@ class Application(tk.Tk):
         self.set_text_input(self.seed_field,str(character.seed))
         #
         #
+    def replace_color(self,datas,trait,area1,area2,color,blank):
+        """parameters:
+            datas :  dic with all datas
+            area1 :  (str trait,str area)
+            area2 :  (str trait,str area)
+            color :  (r,g,b,a)
+            blank :  np.array
+        """
+        np.logical_and(datas[area1[0]][area1[1]],datas[area2[0]][area2[1]],out=blank)
+        if(len(color)==3):
+            datas[trait]['data'][...,:-1][blank.T]=color
+        else:
+            datas[trait]['data'][...][blank.T]=(color)
+
 if __name__ == "__main__":
     new_character=Character()
     print(new_character.seed)

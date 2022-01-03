@@ -1,6 +1,5 @@
 REFACTOR
 
 ADD 
-Glasses monocle 
-Sorcerers HAT 
 Hairs
+Facial Hairs
