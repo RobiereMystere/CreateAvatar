@@ -29,58 +29,59 @@ class Character():
         #
     def generate_traits(self):
         """Randomly Sets traits of the Character."""
-        for i in self.parts:
-            files = os.listdir('./resources/'+i)
-            imgpath = 'resources/'+i+'/'+self.rnd.choice(files)
-            self.parts[i]['path']=imgpath
-            self.parts[i]['color']=(
+        for item in self.parts.items():
+            files = os.listdir('./resources/'+item[0])
+            imgpath = 'resources/'+item[0]+'/'+self.rnd.choice(files)
+            item[1]['path']=imgpath
+            item[1]['color']=(
                 int(self.rnd.random()*255),
                 int(self.rnd.random()*255),
                 int(self.rnd.random()*255))
-        print(self.parts)
+        print(self.to_string())
+    def to_string(self):
+        """Printable output for the character."""
+        string=""
+        for item in self.parts.items():
+            string+=item[0]+"\n"
+            for item2 in item[1]:
+                string+='\t'+item2+':'+str(item[1][item2])+'\n'
+        return string
+
         #
 class Application(tk.Tk):
     """GUI Object."""
     def __init__(self):
         tk.Tk.__init__(self)
-        icon = ImageTk.PhotoImage(file='icons/icon.ico')
-        self.tk.call('wm', 'iconphoto', self._w, icon)
+        self.pictures=[]
+        self.current_character=None
+        self.tk.call('wm', 'iconphoto', self._w, ImageTk.PhotoImage(file='icons/icon.ico'))
         self.title("AVATAR CREATOR")
         self.canvas_zone=tk.Frame(self, relief=tk.RAISED, borderwidth=1)
         self.opt_zone=tk.Frame(self, relief=tk.RAISED, borderwidth=1)
         #
         self.canvas=tk.Canvas(self.canvas_zone,width=500,height=500)
         self.canvas.pack()
-        self.pictures=[]
-        self.current_character=None
         self.canvas_zone.pack(fill=tk.BOTH, expand=True)
         self.opt_zone.pack( expand=True)
         #
-        self.new_character_button=tk.Button(self.opt_zone,text="REROLL",command=self.new_character)
-        self.new_character_button.grid(row=0,column=1)
+        tk.Button(self.opt_zone,text="REROLL",command=self.new_character).grid(row=0,column=1)
+        tk.Button(self.opt_zone,text="REFRESH",command=self.draw_char).grid(row=0,column=2)
         #
-        self.new_character_button=tk.Button(self.opt_zone,text="REFRESH",command=self.draw_char)
-        self.new_character_button.grid(row=0,column=2)
-        #
-        self.seed_label = tk.Label(self.opt_zone, text="Seed" )
-        self.seed_label.grid(row=1,column=0)
+        tk.Label(self.opt_zone, text="Seed" ).grid(row=1,column=0)
         #
         self.seed_field=tk.Entry(self.opt_zone,width=20)
         self.seed_field.grid(row=1,column=1)
         self.seed_field.bind('<Return>', self.new_character_seed)
         #
-        self.seed_button=tk.Button(self.opt_zone,text="seed",command=self.new_character_seed)
-        self.seed_button.grid(row=1,column=2)
+        tk.Button(self.opt_zone,text="seed",command=self.new_character_seed).grid(row=1,column=2)
         #
-        self.filename_label = tk.Label(self.opt_zone, text="File Name" )
-        self.filename_label.grid(row=2,column=0)
+        tk.Label(self.opt_zone, text="File Name" ).grid(row=2,column=0)
         #
         self.filename_field=tk.Entry(self.opt_zone,width=20)
         self.filename_field.grid(row=2,column=1)
         self.filename_field.bind('<Return>', self.save_picture)
         #
-        self.save_button=tk.Button(self.opt_zone,text="SAVE",command=self.save_picture)
-        self.save_button.grid(row=2,column=2)
+        tk.Button(self.opt_zone,text="SAVE",command=self.save_picture).grid(row=2,column=2)
         #
     @staticmethod
     def set_text_input(field,text):
@@ -90,6 +91,8 @@ class Application(tk.Tk):
         #
     def save_picture(self,event=None):
         """Saves Picture."""
+        if event is not None:
+            print("<RETURN>",event)
         pos_x = tk.Canvas.winfo_rootx(self.canvas)
         pos_y = tk.Canvas.winfo_rooty(self.canvas)
         width = tk.Canvas.winfo_width(self.canvas)
@@ -101,15 +104,18 @@ class Application(tk.Tk):
                                   pos_y,
                                   pos_x+width,
                                   pos_y+height))
-        img.save(filename)
+        img.save("saves/"+filename)
         #
-    def clear(self,ctx):
+    @staticmethod
+    def clear(ctx):
         """clears all elements."""
         for widgets in ctx.winfo_children():
             widgets.destroy()
         #
     def new_character_seed(self,event=None):
         """Create new character with seed set manually."""
+        if event is not None:
+            print("<RETURN>",event)
         try:
             seed=int(self.seed_field.get())
         except ValueError:
@@ -154,46 +160,43 @@ class Application(tk.Tk):
                     'glasses':{'data':None}
                     }
             for item in datas.items():
+                #print(item[1]['data']is datas[item[0]]['data'])
                 data = self.image_file2data(os.getcwd()+"/"+character.parts[item[0]]['path'])
-                datas[item[0]]['data']=data
-                datas[item[0]]['red'],datas[item[0]]['green'],datas[item[0]]['blue'],datas[item[0]]['alpha']=datas[item[0]]['data'].T
-                
-                datas[item[0]]['black_areas'] = \
-                        (datas[item[0]]['red'] < dark)\
-                        &(datas[item[0]]['green'] < dark)\
-                        &(datas[item[0]]['blue'] < dark) \
-                        & (datas[item[0]]['alpha'] > 200)
-                datas[item[0]]['white_areas'] = \
-                        (datas[item[0]]['red'] > light)\
-                        &(datas[item[0]]['green'] > light)\
-                        &(datas[item[0]]['blue'] > light) \
-                        & (datas[item[0]]['alpha'] > 200)
-                datas[item[0]]['transp_areas'] = \
-                        (datas[item[0]]['alpha'] < 10)\
-                        |((datas[item[0]]['red'] < dark)\
-                        &(datas[item[0]]['green'] < dark)\
-                        &(datas[item[0]]['blue'] < dark))
-                                
-                datas[item[0]]['grey_areas'] = \
-                        (datas[item[0]]['red'] >=dark)\
-                        &(datas[item[0]]['red'] <=light)\
-                        &(datas[item[0]]['green'] >=dark)\
-                        &(datas[item[0]]['green'] <=light)\
-                        &(datas[item[0]]['blue'] >=dark)\
-                        &(datas[item[0]]['blue'] <=light)
-                datas[item[0]]['transp_areas']=\
-                        (datas[item[0]]['alpha']<10)
-                '''               | ((redhead < dark)\
-                                  & (bluehead < dark)\
-                                  & (greenhead < dark))'''
-                datas[item[0]]['green_areas'] = \
-                        (datas[item[0]]['red'] == 0)\
-                        &(datas[item[0]]['green'] == 255)\
-                        &(datas[item[0]]['blue'] == 0)
-                datas[item[0]]['red_areas'] = \
-                        (datas[item[0]]['red'] == 255)\
-                        &(datas[item[0]]['green'] == 0)\
-                        &(datas[item[0]]['blue'] == 0)
+                item[1]['data']=data
+                item[1]['red'],\
+                        item[1]['green'],\
+                        item[1]['blue'],\
+                        item[1]['alpha']=item[1]['data'].T
+                item[1]['black_areas'] = \
+                        (item[1]['red'] < dark)\
+                        &(item[1]['green'] < dark)\
+                        &(item[1]['blue'] < dark) \
+                        & (item[1]['alpha'] > 200)
+                item[1]['white_areas'] = \
+                        (item[1]['red'] > light)\
+                        &(item[1]['green'] > light)\
+                        &(item[1]['blue'] > light) \
+                        & (item[1]['alpha'] > 200)
+                item[1]['transp_areas'] = \
+                        (item[1]['alpha'] < 10)\
+                        |((item[1]['red'] < dark)\
+                        &(item[1]['green'] < dark)\
+                        &(item[1]['blue'] < dark))
+                item[1]['grey_areas'] = \
+                        (item[1]['red'] >=dark)\
+                        &(item[1]['red'] <=light)\
+                        &(item[1]['green'] >=dark)\
+                        &(item[1]['green'] <=light)\
+                        &(item[1]['blue'] >=dark)\
+                        &(item[1]['blue'] <=light)
+                item[1]['green_areas'] = \
+                        (item[1]['red'] == 0)\
+                        &(item[1]['green'] == 255)\
+                        &(item[1]['blue'] == 0)
+                item[1]['red_areas'] = \
+                        (item[1]['red'] == 255)\
+                        &(item[1]['green'] == 0)\
+                        &(item[1]['blue'] == 0)
             #
             grey_replacement=character.parts[trait]['color']
             grey_replacement=(grey_replacement[0]*0.75,
@@ -218,29 +221,71 @@ class Application(tk.Tk):
                                  (red_replacement[1]*0.75+red_replacementg[1])/2,
                                  (red_replacement[2]*0.75+red_replacementg[2])/2)
                 #
-            datas[trait]['data'][...,:-1][datas[trait]['white_areas'].T] = character.parts[trait]['color']
-            datas[trait]['data'][...,:-1][datas[trait]['black_areas'].T] = (0,0,0) 
-            datas[trait]['data'][...][datas[trait]['grey_areas'].T] = grey_replacement 
-            datas[trait]['data'][...][datas[trait]['green_areas'].T] = green_replacement 
+            datas[trait]['data'][...,:-1][datas[trait]['white_areas'].T] =\
+                    character.parts[trait]['color']
+            datas[trait]['data'][...,:-1][datas[trait]['black_areas'].T] = (0,0,0)
+            datas[trait]['data'][...][datas[trait]['grey_areas'].T] = grey_replacement
+            datas[trait]['data'][...][datas[trait]['green_areas'].T] = green_replacement
             #
-            blank=(datas['eyes']['red']==-1)
-            self.replace_color(datas,trait,('eyes','white_areas'),(trait,'red_areas'),red_replacement,blank)
-            self.replace_color(datas,trait,('headshapes','white_areas'),(trait,'red_areas'),green_replacement,blank)
-            self.replace_color(datas,trait,('eyes','white_areas'),(trait,'red_areas'),red_replacement,blank)
+            self.replace_color(
+                    datas,
+                    trait,
+                    ('eyes','white_areas'),
+                    (trait,'red_areas'),
+                    red_replacement)
+            self.replace_color(
+                    datas,
+                    trait,
+                    ('headshapes','white_areas'),
+                    (trait,'red_areas'),
+                    green_replacement)
+            self.replace_color(datas,
+                    trait,
+                    ('eyes','white_areas'),
+                    (trait,'red_areas'),
+                    red_replacement)
             green_replacement=(green_replacement[0]*0.75,
                                green_replacement[1]*0.75,
                                green_replacement[2]*0.75,
                                255)
-            self.replace_color(datas,trait,('headshapes','grey_areas'),(trait,'red_areas'),green_replacement,blank)
-            self.replace_color(datas,trait,('eyes','black_areas'),(trait,'red_areas'),(0,0,0,255),blank)
-            self.replace_color(datas,trait,('glasses','black_areas'),(trait,'red_areas'),(0,0,0,255),blank)
-            self.replace_color(datas,trait,('glasses','white_areas'),(trait,'red_areas'),red_replacementg,blank)
-            self.replace_color(datas,trait,('headshapes','transp_areas'),(trait,'red_areas'),(255,0,0,0),blank)
-            self.replace_color(datas,trait,('headshapes','black_areas'),(trait,'red_areas'),(255,0,0,0),blank)
+            self.replace_color(datas,
+                    trait,
+                    ('headshapes','grey_areas'),
+                    (trait,'red_areas'),
+                    green_replacement)
+            self.replace_color(datas,
+                    trait,
+                    ('eyes','black_areas'),
+                    (trait,'red_areas'),
+                    (0,0,0,255))
+            self.replace_color(datas,
+                    trait,
+                    ('glasses','black_areas'),
+                    (trait,'red_areas'),
+                    (0,0,0,255))
+            self.replace_color(datas,
+                    trait,
+                    ('glasses','white_areas'),
+                    (trait,'red_areas'),
+                    red_replacementg)
+            self.replace_color(datas,
+                    trait,
+                    ('headshapes','transp_areas'),
+                    (trait,'red_areas'),
+                    (255,0,0,0))
+            self.replace_color(datas,
+                    trait,
+                    ('headshapes','black_areas'),
+                    (trait,'red_areas'),
+                    (255,0,0,0))
             image2 = Image.fromarray(datas[trait]['data'])
             image= ImageTk.PhotoImage(image2)
             self.pictures.append(image)
             self.canvas.create_image(250,250,image=image)
+        self.draw_seed(character)
+        #
+    def draw_seed(self,character):
+        """Draw the SEED used to Generate Random."""
         number_width=20
         center_x=267
         number_pos_y=450
@@ -255,9 +300,8 @@ class Application(tk.Tk):
         self.canvas.update()
         self.current_character=character
         self.set_text_input(self.seed_field,str(character.seed))
-        #
-        #
-    def replace_color(self,datas,trait,area1,area2,color,blank):
+    @staticmethod
+    def replace_color(datas,trait,area1,area2,color):
         """parameters:
             datas :  dic with all datas
             area1 :  (str trait,str area)
@@ -265,8 +309,9 @@ class Application(tk.Tk):
             color :  (r,g,b,a)
             blank :  np.array
         """
+        blank=(datas['eyes']['red']==-1)
         np.logical_and(datas[area1[0]][area1[1]],datas[area2[0]][area2[1]],out=blank)
-        if(len(color)==3):
+        if len(color)==3 :
             datas[trait]['data'][...,:-1][blank.T]=color
         else:
             datas[trait]['data'][...][blank.T]=(color)

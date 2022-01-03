@@ -3,3 +3,6 @@ REFACTOR
 ADD 
 Hairs
 Facial Hairs
+select Resolution in UI
+
+Pictures as Objects (maintainability)
