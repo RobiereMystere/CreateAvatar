@@ -46,7 +46,6 @@ class Character():
             for item2 in item[1]:
                 string+='\t'+item2+':'+str(item[1][item2])+'\n'
         return string
-
         #
 class Application(tk.Tk):
     """GUI Object."""
@@ -80,6 +79,26 @@ class Application(tk.Tk):
         self.filename_field=tk.Entry(self.opt_zone,width=20)
         self.filename_field.grid(row=2,column=1)
         self.filename_field.bind('<Return>', self.save_picture)
+        self.resolution_scales={
+                'width': tk.Scale(self.opt_zone,
+                    from_=100,
+                    to=10000,
+                    resolution=100,
+                    length=200,
+                    orient=tk.HORIZONTAL),
+                'height': tk.Scale(self.opt_zone,
+                    from_=100,
+                    to=10000,
+                    resolution=100,
+                    length=200,
+                    orient=tk.HORIZONTAL)
+                }
+        self.resolution_scales['width'].set(500)
+        self.resolution_scales['height'].set(500)
+        tk.Label(self.opt_zone, text="width" ).grid(row=4,column=0)
+        self.resolution_scales['width'].grid(row=4,column=1)
+        tk.Label(self.opt_zone, text="height" ).grid(row=5,column=0)
+        self.resolution_scales['height'].grid(row=5,column=1)
         #
         tk.Button(self.opt_zone,text="SAVE",command=self.save_picture).grid(row=2,column=2)
         #
@@ -104,7 +123,12 @@ class Application(tk.Tk):
                                   pos_y,
                                   pos_x+width,
                                   pos_y+height))
+
+        img=img.resize(
+                (self.resolution_scales['width'].get(),self.resolution_scales['height'].get())
+            ,resample=0)
         img.save("saves/"+filename)
+        print("saved as ",filename)
         #
     @staticmethod
     def clear(ctx):
