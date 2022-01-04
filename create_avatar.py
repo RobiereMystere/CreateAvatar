@@ -17,14 +17,14 @@ class Character():
         #self.seed=567
         self.rnd=random.Random(int(self.seed))
         self.parts={
-                'backgrounds':{'path':None,'color':None},
-                'bodies':{'path':None,'color':None},
-                'headshapes':{'path':None,'color':None},
-                'eyes':{'path':None,'color':None},
-                'glasses':{'path':None,'color':None},
-                'mouths':{'path':None,'color':None},
-                'moustaches':{'path':None,'color':None},
-                'hats':{'path':None,'color':None}
+                'backgrounds':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'bodies':{'path':None,'color':None,'pattern':True,'pattern-color':None},
+                'headshapes':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'eyes':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'glasses':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'mouths':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'moustaches':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'hats':{'path':None,'color':None,'pattern':True,'pattern-color':None}
                 }
         self.generate_traits()
         #
@@ -38,6 +38,16 @@ class Character():
                 int(self.rnd.random()*255),
                 int(self.rnd.random()*255),
                 int(self.rnd.random()*255))
+            item[1]['pattern-color']=(
+                int(self.rnd.random()*255),
+                int(self.rnd.random()*255),
+                int(self.rnd.random()*255))
+            files = os.listdir('./resources/patterns')
+            if(item[1]['pattern']):
+                item[1]['pattern']='resources/patterns/'+self.rnd.choice(files)
+            else:
+                item[1]['pattern']='resources/patterns/0.png'
+
         print(self.to_string())
     def to_string(self):
         """Printable output for the character."""
@@ -158,14 +168,118 @@ class Application(tk.Tk):
         img = img.convert('RGBA')
         return np.array(img)
         #
+    def image_file2dic(self,filepath,dic,character,trait):
+        """set Dic from image filepath."""
+        light=200
+        dark=10
+        data = self.image_file2data(filepath)
+        datapattern = self.image_file2data(os.getcwd()+"/"+character.parts[trait]['pattern'])
+        dicpattern={}
+        dicpattern['data']=datapattern
+        dicpattern['red'],\
+                dicpattern['green'],\
+                dicpattern['blue'],\
+                dicpattern['alpha']=dicpattern['data'].T
+        #
+        dic['data']=data
+        dic['red'],\
+                dic['green'],\
+                dic['blue'],\
+                dic['alpha']=dic['data'].T
+        dic['black_areas'] = \
+                (dic['red'] < dark)\
+                &(dic['green'] < dark)\
+                &(dic['blue'] < dark) \
+                & (dic['alpha'] > 200)
+        dic['white_areas'] = \
+                (dic['red'] > light)\
+                &(dic['green'] > light)\
+                &(dic['blue'] > light) \
+                & (dic['alpha'] > 200)
+        dic['transp_areas'] = \
+                (dic['alpha'] < 10)\
+                |((dic['red'] < dark)\
+                &(dic['green'] < dark)\
+                &(dic['blue'] < dark))
+        dic['grey_areas'] = \
+                (dic['red'] >=dark)\
+                &(dic['red'] <=light)\
+                &(dic['green'] >=dark)\
+                &(dic['green'] <=light)\
+                &(dic['blue'] >=dark)\
+                &(dic['blue'] <=light)
+        dic['green_areas'] = \
+                (dic['red'] == 0)\
+                &(dic['green'] == 255)\
+                &(dic['blue'] == 0)
+        dic['pattern_areas'] = \
+                (dicpattern['red'] == 0)\
+                &(dicpattern['green'] == 0)\
+                &(dicpattern['blue'] == 255)
+        dic['red_areas'] = \
+                (dic['red'] == 255)\
+                &(dic['green'] == 0)\
+                &(dic['blue'] == 0)
+    @staticmethod
+    def data2dic(data,dic):
+        #update dictionary with data
+        light=200
+        dark=10
+        dic['red'],\
+                dic['green'],\
+                dic['blue'],\
+                dic['alpha']=data.T
+        dic['black_areas'] = \
+                (dic['red'] < dark)\
+                &(dic['green'] < dark)\
+                &(dic['blue'] < dark) \
+                & (dic['alpha'] > 200)
+        dic['white_areas'] = \
+                (dic['red'] > light)\
+                &(dic['green'] > light)\
+                &(dic['blue'] > light) \
+                & (dic['alpha'] > 200)
+        dic['transp_areas'] = \
+                (dic['alpha'] < 10)\
+                |((dic['red'] < dark)\
+                &(dic['green'] < dark)\
+                &(dic['blue'] < dark))
+        dic['grey_areas'] = \
+                (dic['red'] >=dark)\
+                &(dic['red'] <=light)\
+                &(dic['green'] >=dark)\
+                &(dic['green'] <=light)\
+                &(dic['blue'] >=dark)\
+                &(dic['blue'] <=light)
+        dic['green_areas'] = \
+                (dic['red'] == 0)\
+                &(dic['green'] == 255)\
+                &(dic['blue'] == 0)
+        dic['red_areas'] = \
+                (dic['red'] == 255)\
+                &(dic['green'] == 0)\
+                &(dic['blue'] == 0)
+
+    def set_trait_pattern2dic(self,character,trait,datas):
+        """set pattern of a trait into dictionary datas."""
+        datapattern = self.image_file2data(os.getcwd()+"/"+character.parts[trait]['pattern'])
+        dicpattern={}
+        dicpattern['data']=datapattern
+        dicpattern['red'],\
+                dicpattern['green'],\
+                dicpattern['blue'],\
+                dicpattern['alpha']=dicpattern['data'].T
+        datas[trait]['pattern_areas'] = \
+                (dicpattern['red'] == 0)\
+                &(dicpattern['green'] == 0)\
+                &(dicpattern['blue'] == 255)
+
     def draw_char(self,character=None):
         """Draw a Character."""
         self.clear(self.canvas)
         if character is None :
             character=self.current_character
         for trait in character.parts:
-            light=200
-            dark=10
             #
             datas={
                     trait:{'data':None,
@@ -178,7 +292,9 @@ class Application(tk.Tk):
                         'transp_areas':None,
                         'red_areas':None,
                         'green_areas':None,
-                        'grey_areas':None
+                        'grey_areas':None,
+                        'pattern_areas':None,
+                        'pattern_color':None
                         },
                     'eyes':{'data':None},
                     'headshapes':{'data':None},
@@ -186,42 +302,7 @@ class Application(tk.Tk):
                     }
             for item in datas.items():
                 #print(item[1]['data']is datas[item[0]]['data'])
-                data = self.image_file2data(os.getcwd()+"/"+character.parts[item[0]]['path'])
-                item[1]['data']=data
-                item[1]['red'],\
-                        item[1]['green'],\
-                        item[1]['blue'],\
-                        item[1]['alpha']=item[1]['data'].T
-                item[1]['black_areas'] = \
-                        (item[1]['red'] < dark)\
-                        &(item[1]['green'] < dark)\
-                        &(item[1]['blue'] < dark) \
-                        & (item[1]['alpha'] > 200)
-                item[1]['white_areas'] = \
-                        (item[1]['red'] > light)\
-                        &(item[1]['green'] > light)\
-                        &(item[1]['blue'] > light) \
-                        & (item[1]['alpha'] > 200)
-                item[1]['transp_areas'] = \
-                        (item[1]['alpha'] < 10)\
-                        |((item[1]['red'] < dark)\
-                        &(item[1]['green'] < dark)\
-                        &(item[1]['blue'] < dark))
-                item[1]['grey_areas'] = \
-                        (item[1]['red'] >=dark)\
-                        &(item[1]['red'] <=light)\
-                        &(item[1]['green'] >=dark)\
-                        &(item[1]['green'] <=light)\
-                        &(item[1]['blue'] >=dark)\
-                        &(item[1]['blue'] <=light)
-                item[1]['green_areas'] = \
-                        (item[1]['red'] == 0)\
-                        &(item[1]['green'] == 255)\
-                        &(item[1]['blue'] == 0)
-                item[1]['red_areas'] = \
-                        (item[1]['red'] == 255)\
-                        &(item[1]['green'] == 0)\
-                        &(item[1]['blue'] == 0)
+                self.image_file2dic(os.getcwd()+"/"+character.parts[item[0]]['path'],item[1],character,trait)
             #
             grey_replacement=character.parts[trait]['color']
             grey_replacement=(grey_replacement[0]*0.75,
@@ -269,10 +350,65 @@ class Application(tk.Tk):
                     ('eyes','white_areas'),
                     (trait,'red_areas'),
                     red_replacement)
+            pattern_color=character.parts[trait]['pattern-color']
+            pattern_color_eyes=character.parts['eyes']['pattern-color']
+            pattern_color_glasses=character.parts['glasses']['pattern-color']
+            pattern_color_headshapes=character.parts['headshapes']['pattern-color']
+            pattern_shadow=(pattern_color[0]*0.75,
+                               pattern_color[1]*0.75,
+                               pattern_color[2]*0.75,
+                               255)
+            pattern_shadow_eyes=(pattern_color_eyes[0]*0.75,
+                               pattern_color_eyes[1]*0.75,
+                               pattern_color_eyes[2]*0.75,
+                               255)
+            pattern_shadow_glasses=(pattern_color_glasses[0]*0.75,
+                               pattern_color_glasses[1]*0.75,
+                               pattern_color_glasses[2]*0.75,
+                               255)
+            pattern_shadow_headshapes=(pattern_color_headshapes[0]*0.75,
+                               pattern_color_headshapes[1]*0.75,
+                               pattern_color_headshapes[2]*0.75,
+                               255)
             green_replacement=(green_replacement[0]*0.75,
                                green_replacement[1]*0.75,
                                green_replacement[2]*0.75,
                                255)
+            pattern_shadow_headshapes=(pattern_color_headshapes[0]*0.75,
+                               pattern_color_headshapes[1]*0.75,
+                               pattern_color_headshapes[2]*0.75,
+                               255)
+            self.replace_color(datas,
+                    trait,
+                    (trait,'pattern_areas'),
+                    (trait,'grey_areas'),
+                    pattern_shadow)
+            self.replace_color(datas,
+                    trait,
+                    (trait,'pattern_areas'),
+                    (trait,'white_areas'),
+                    pattern_color)
+            self.set_trait_pattern2dic(character,'headshapes',datas)
+            self.set_trait_pattern2dic(character,'eyes',datas)
+            self.set_trait_pattern2dic(character,'glasses',datas)
+            
+            self.replace_color(datas,
+                    trait,
+                    ('eyes','pattern_areas'),
+                    (trait,'red_areas'),
+                    pattern_shadow_eyes)
+ 
+            self.replace_color(datas,
+                    trait,
+                    ('glasses','pattern_areas'),
+                    (trait,'red_areas'),
+                    pattern_shadow_glasses)
+ 
+            self.replace_color(datas,
+                    trait,
+                    ('headshapes','pattern_areas'),
+                    (trait,'red_areas'),
+                    pattern_shadow_headshapes)
             self.replace_color(datas,
                     trait,
                     ('headshapes','grey_areas'),
@@ -337,7 +473,7 @@ class Application(tk.Tk):
         blank=(datas['eyes']['red']==-1)
         np.logical_and(datas[area1[0]][area1[1]],datas[area2[0]][area2[1]],out=blank)
         if len(color)==3 :
-            datas[trait]['data'][...,:-1][blank.T]=color
+            datas[trait]['data'][...,:-1][blank.T]=(color)
         else:
             datas[trait]['data'][...][blank.T]=(color)
 
