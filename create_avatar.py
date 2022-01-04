@@ -22,8 +22,8 @@ class Character():
                 'headshapes':{'path':None,'color':None,'pattern':False,'pattern-color':None},
                 'eyes':{'path':None,'color':None,'pattern':False,'pattern-color':None},
                 'glasses':{'path':None,'color':None,'pattern':False,'pattern-color':None},
-                'mouths':{'path':None,'color':None,'pattern':False,'pattern-color':None},
                 'moustaches':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'mouths':{'path':None,'color':None,'pattern':False,'pattern-color':None},
                 'hats':{'path':None,'color':None,'pattern':True,'pattern-color':None}
                 }
         self.generate_traits()
