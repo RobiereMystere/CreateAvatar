@@ -1,8 +1,17 @@
 REFACTOR
 
+CLEAN useless code
+
 ADD 
-Hairs
-Facial Hairs
-select Resolution in UI
+sparkly animation
+visible seed with every background
+hands+mugshot board
 
 Pictures as Objects (maintainability)
+
+ReConceptualize Picture system as One Picture
+
+Make a 'by selection' creator instead of full RANDOM
+
+Get the seed for a given non-Random Character
+
