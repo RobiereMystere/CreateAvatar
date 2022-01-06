@@ -12,7 +12,7 @@ class Character():
         self.seed=seed
         if self.seed is None :
             #self.seed = random.randrange(sys.maxsize)
-            self.seed = random.randrange(9999)
+            self.seed = random.randrange(999999)
         #
         #self.seed=567
         self.rnd=random.Random(int(self.seed))
@@ -22,33 +22,49 @@ class Character():
                 'headshapes':{'path':None,'color':None,'pattern':False,'pattern-color':None},
                 'eyes':{'path':None,'color':None,'pattern':False,'pattern-color':None},
                 'glasses':{'path':None,'color':None,'pattern':False,'pattern-color':None},
-                'moustaches':{'path':None,'color':None,'pattern':False,'pattern-color':None},
                 'mouths':{'path':None,'color':None,'pattern':False,'pattern-color':None},
-                'hats':{'path':None,'color':None,'pattern':True,'pattern-color':None}
+                'moustaches':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'hats':{'path':None,'color':None,'pattern':True,'pattern-color':None},
+                'wrists':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'boards':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'fingers':{'path':None,'color':None,'pattern':False,'pattern-color':None}
                 }
         self.generate_traits()
         #
+    def __eq__(self, character):
+        """equality test."""
+        for part in self.parts:
+            if self.parts[part]['path']!=character.parts[part]['path']:
+                return False
+        return True
+
     def generate_traits(self):
         """Randomly Sets traits of the Character."""
+        random_scale=5
         for item in self.parts.items():
             files = os.listdir('./resources/'+item[0])
             imgpath = 'resources/'+item[0]+'/'+self.rnd.choice(files)
             item[1]['path']=imgpath
             item[1]['color']=(
-                int(self.rnd.random()*255),
-                int(self.rnd.random()*255),
-                int(self.rnd.random()*255))
+                int(self.rnd.random()*random_scale)*int(256/random_scale),
+                int(self.rnd.random()*random_scale)*int(256/random_scale),
+                int(self.rnd.random()*random_scale)*int(256/random_scale))
             item[1]['pattern-color']=(
-                int(self.rnd.random()*255),
-                int(self.rnd.random()*255),
-                int(self.rnd.random()*255))
+                int(self.rnd.random()*random_scale)*int(256/random_scale),
+                int(self.rnd.random()*random_scale)*int(256/random_scale),
+                int(self.rnd.random()*random_scale)*int(256/random_scale))
             files = os.listdir('./resources/patterns')
             if(item[1]['pattern']):
                 item[1]['pattern']='resources/patterns/'+self.rnd.choice(files)
             else:
                 item[1]['pattern']='resources/patterns/0.png'
-
-        print(self.to_string())
+        #print()
+        self.parts['wrists']['color']=self.parts['bodies']['color']
+        self.parts['wrists']['pattern']=self.parts['bodies']['pattern']
+        self.parts['wrists']['pattern-color']=self.parts['bodies']['pattern-color']
+        self.parts['fingers']['color']=self.parts['headshapes']['color']
+        self.parts['boards']['color']=(0,0,0)
+        #print(self.to_string())
     def to_string(self):
         """Printable output for the character."""
         string=""
@@ -69,11 +85,15 @@ class Application(tk.Tk):
         self.title("AVATAR CREATOR")
         self.canvas_zone=tk.Frame(self, relief=tk.RAISED, borderwidth=1)
         self.opt_zone=tk.Frame(self, relief=tk.RAISED, borderwidth=1)
+        self.select_zone=tk.Frame(self, relief=tk.RAISED, borderwidth=1)
         #
+        self.selector=self.list_boxes(self.select_zone,new_character)
+        self.selected_trait=None
         self.canvas=tk.Canvas(self.canvas_zone,width=500,height=500)
         self.canvas.pack()
         self.canvas_zone.pack(fill=tk.BOTH, expand=True)
         self.opt_zone.pack( expand=True)
+        self.select_zone.pack(side=tk.RIGHT, expand=True)
         #
         tk.Button(self.opt_zone,text="REROLL",command=self.new_character).grid(row=0,column=1)
         tk.Button(self.opt_zone,text="REFRESH",command=self.draw_char).grid(row=0,column=2)
@@ -113,7 +133,44 @@ class Application(tk.Tk):
         self.resolution_scales['height'].grid(row=5,column=1)
         #
         tk.Button(self.opt_zone,text="SAVE",command=self.save_picture).grid(row=2,column=2)
+        tk.Button(self.opt_zone,text="search SEED",command=self.search_seed).grid(row=3,column=2)
         #
+    def search_seed(self):
+        seed=0
+        new_character=Character(seed)
+        while new_character != self.current_character:
+            new_character=Character(seed)
+            seed+=1
+        print(seed-1)
+    def list_boxes(self,zone,character):
+        self.list_box_files=tk.Listbox(zone,selectmode=tk.SINGLE)
+        self.list_box=tk.Listbox(zone,selectmode=tk.SINGLE)
+        self.list_box.insert(tk.END, *character.parts)
+        self.list_box.bind('<<ListboxSelect>>', self.onselect)
+        self.list_box_files.bind('<<ListboxSelect>>', self.change_trait)
+        self.list_box.pack()
+        self.list_box_files.pack()
+    def change_trait(self,evt):
+        # Note here that Tkinter passes an event object to onselect()
+        w = evt.widget
+        print(w.curselection())
+        if len(w.curselection())>0:
+            index = int(w.curselection()[0])
+            value = w.get(index)
+            print(value, self.current_character.parts[self.selected_trait])
+            self.current_character.parts[self.selected_trait]['path']='resources/'+self.selected_trait+'/'+value
+        self.draw_char()
+    def onselect(self,evt):
+        # Note here that Tkinter passes an event object to onselect()
+        w = evt.widget
+        if len(w.curselection())>0:
+            index = int(w.curselection()[0])
+            value = w.get(index)
+            files = os.listdir('./resources/'+value)
+            self.list_box_files.delete(0,tk.END)
+            self.list_box_files.insert(tk.END,*files)
+            print ('You selected item %d: "%s"' % (index, value))
+            self.selected_trait=value
     @staticmethod
     def set_text_input(field,text):
         """Could be in a tool module."""
@@ -483,6 +540,3 @@ if __name__ == "__main__":
     app = Application()
     app.draw_char(new_character)
     app.mainloop()
-#
-#
-#

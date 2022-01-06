@@ -22,9 +22,12 @@ class Character():
                 'headshapes':{'path':None,'color':None,'pattern':False,'pattern-color':None},
                 'eyes':{'path':None,'color':None,'pattern':False,'pattern-color':None},
                 'glasses':{'path':None,'color':None,'pattern':False,'pattern-color':None},
-                'moustaches':{'path':None,'color':None,'pattern':False,'pattern-color':None},
                 'mouths':{'path':None,'color':None,'pattern':False,'pattern-color':None},
-                'hats':{'path':None,'color':None,'pattern':True,'pattern-color':None}
+                'moustaches':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'hats':{'path':None,'color':None,'pattern':True,'pattern-color':None},
+                'wrists':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'boards':{'path':None,'color':None,'pattern':False,'pattern-color':None},
+                'fingers':{'path':None,'color':None,'pattern':False,'pattern-color':None}
                 }
         self.generate_traits()
         #
@@ -47,7 +50,12 @@ class Character():
                 item[1]['pattern']='resources/patterns/'+self.rnd.choice(files)
             else:
                 item[1]['pattern']='resources/patterns/0.png'
-
+        print()
+        self.parts['wrists']['color']=self.parts['bodies']['color']
+        self.parts['wrists']['pattern']=self.parts['bodies']['pattern']
+        self.parts['wrists']['pattern-color']=self.parts['bodies']['pattern-color']
+        self.parts['fingers']['color']=self.parts['headshapes']['color']
+        self.parts['boards']['color']=(0,0,0)
         print(self.to_string())
     def to_string(self):
         """Printable output for the character."""
