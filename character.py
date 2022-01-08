@@ -6,6 +6,7 @@ class Character:
     """Character Object."""
 
     def __init__(self, seed=None):
+        self.resources_path = 'resources-alpha/'
         self.seed = seed
         if self.seed is None:
             # self.seed = random.randrange(sys.maxsize)
@@ -40,8 +41,8 @@ class Character:
         """Randomly Sets traits of the Character."""
         random_scale = 5
         for item in self.parts.items():
-            files = os.listdir('./resources/' + item[0])
-            img_path = 'resources/' + item[0] + '/' + self.rnd.choice(files)
+            files = os.listdir(self.resources_path + item[0])
+            img_path = self.resources_path + item[0] + '/' + self.rnd.choice(files)
             item[1]['path'] = img_path
             item[1]['color'] = (
                 int(self.rnd.random() * random_scale) * int(256 / random_scale),
@@ -51,11 +52,11 @@ class Character:
                 int(self.rnd.random() * random_scale) * int(256 / random_scale),
                 int(self.rnd.random() * random_scale) * int(256 / random_scale),
                 int(self.rnd.random() * random_scale) * int(256 / random_scale))
-            files = os.listdir('./resources/patterns')
+            files = os.listdir(self.resources_path + 'patterns')
             if item[1]['pattern']:
-                item[1]['pattern'] = 'resources/patterns/' + self.rnd.choice(files)
+                item[1]['pattern'] = self.resources_path + 'patterns/' + self.rnd.choice(files)
             else:
-                item[1]['pattern'] = 'resources/patterns/0.png'
+                item[1]['pattern'] = self.resources_path + 'patterns/0.png'
         # print()
         self.parts['wrists']['color'] = self.parts['bodies']['color']
         self.parts['wrists']['pattern'] = self.parts['bodies']['pattern']

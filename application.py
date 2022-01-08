@@ -5,6 +5,7 @@ import pyscreenshot as ImageGrab
 from PIL import Image, ImageTk
 import numpy as np
 
+from ImageData import ImageData
 from character import Character
 
 
@@ -69,7 +70,6 @@ class Application(tk.Tk):
         #
         tk.Button(self.opt_zone, text="SAVE", command=self.save_picture).grid(row=2, column=2)
         tk.Button(self.opt_zone, text="search SEED", command=self.search_seed).grid(row=3, column=2)
-        #
 
     def search_seed(self):
         seed = 0
@@ -96,7 +96,8 @@ class Application(tk.Tk):
             index = int(w.curselection()[0])
             value = w.get(index)
             print(value, self.current_character.parts[self.selected_trait])
-            self.current_character.parts[self.selected_trait]['path'] = 'resources/' + self.selected_trait + '/' + value
+            self.current_character.parts[self.selected_trait]['path'] = self.current_character.resources_path \
+                                                                        + self.selected_trait + '/' + value
         self.draw_char()
 
     def on_select(self, evt):
@@ -105,7 +106,7 @@ class Application(tk.Tk):
         if len(w.curselection()) > 0:
             index = int(w.curselection()[0])
             value = w.get(index)
-            files = os.listdir('./resources/' + value)
+            files = os.listdir(self.current_character.resources_path + value)
             self.list_box_files.delete(0, tk.END)
             self.list_box_files.insert(tk.END, *files)
             print('You selected item %d: "%s"' % (index, value))
@@ -328,8 +329,7 @@ class Application(tk.Tk):
                                      (red_replacement[1] * 0.75 + red_replacement_g[1]) / 2,
                                      (red_replacement[2] * 0.75 + red_replacement_g[2]) / 2)
                 #
-            datas[trait]['data'][..., :-1][datas[trait]['white_areas'].T] = \
-                character.parts[trait]['color']
+            datas[trait]['data'][..., :-1][datas[trait]['white_areas'].T] = character.parts[trait]['color']
             datas[trait]['data'][..., :-1][datas[trait]['black_areas'].T] = (0, 0, 0)
             datas[trait]['data'][...][datas[trait]['grey_areas'].T] = grey_replacement
             datas[trait]['data'][...][datas[trait]['green_areas'].T] = green_replacement
@@ -455,7 +455,7 @@ class Application(tk.Tk):
         str_seed = str(character.seed)
         number_pos_x = center_x - (len(str_seed) * number_width) / 2
         for digit in str_seed:
-            filepath = os.getcwd() + "/resources/numbers/" + digit + ".png"
+            filepath = os.getcwd() + "/" + character.resources_path + "numbers/" + digit + ".png"
             img = ImageTk.PhotoImage(file=filepath)
             self.pictures.append(img)
             self.canvas.create_image(number_pos_x, number_pos_y, image=img)
