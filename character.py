@@ -5,7 +5,7 @@ import os
 class Character:
     """Character Object."""
 
-    def __init__(self, seed=None):
+    def __init__(self, seed: int = None) -> None:
         self.resources_path = 'resources-alpha/'
         self.seed = seed
         if self.seed is None:
@@ -31,7 +31,10 @@ class Character:
         #
 
     def __eq__(self, character):
-        """equality test."""
+        """equality test.
+        :param character:
+        :return:
+        """
         for part in self.parts:
             if self.parts[part]['path'] != character.parts[part]['path']:
                 return False
@@ -39,7 +42,7 @@ class Character:
 
     def generate_traits(self):
         """Randomly Sets traits of the Character."""
-        random_scale = 5
+        random_scale = 255
         for item in self.parts.items():
             files = os.listdir(self.resources_path + item[0])
             img_path = self.resources_path + item[0] + '/' + self.rnd.choice(files)
