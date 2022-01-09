@@ -1,9 +1,9 @@
 #TO-DO
 REFACTOR
 
-CLEAN useless code
+CLEAN useless code in ImageCharacter Class
 
-ADD 
+ADD HairCut
 sparkly animation
 visible seed with every background
 hands+mugshot board
@@ -11,8 +11,4 @@ hands+mugshot board
 Pictures as Objects (maintainability)
 
 ReConceptualize Picture system as One Picture
-
-Make a 'by selection' creator instead of full RANDOM
-
-Get the seed for a given non-Random Character
 
