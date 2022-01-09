@@ -31,20 +31,8 @@ class ImageCharacter:
                 self.pattern_areas = (self.pattern_red == 0) & (self.pattern_green == 0) & (self.pattern_blue == 255)
 
     @staticmethod
-    def intersect(area1, area2):
-        blank = (area1 == -1)
-        np.logical_and(area1, area2, out=blank)
-        return blank
-
-    @staticmethod
     def replace_color(image_data, trait, image_data1, image_data2, color):
-        """parameters:
-            datas :  dic with all datas
-            area1 :  (str trait,str area)
-            area2 :  (str trait,str area)
-            color :  (r,g,b,a)
-            blank :  np.array
-        """
+        """"""
         blank = (image_data1 == -1)
         np.logical_and(image_data1, image_data2, out=blank)
         if len(color) == 3:

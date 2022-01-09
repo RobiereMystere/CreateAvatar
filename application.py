@@ -89,7 +89,6 @@ class Application(tk.Tk):
         self.list_box_files.pack()
 
     def change_trait(self, evt):
-        # Note here that Tkinter passes an event object to on_select()
         w = evt.widget
         print(w.curselection())
         if len(w.curselection()) > 0:
@@ -101,7 +100,6 @@ class Application(tk.Tk):
         self.draw_char()
 
     def on_select(self, evt):
-        # Note here that Tkinter passes an event object to on_select()
         w = evt.widget
         if len(w.curselection()) > 0:
             index = int(w.curselection()[0])
@@ -205,16 +203,10 @@ class Application(tk.Tk):
                                              (0, 0, 0, 127))
                 ImageCharacter.replace_color(images, trait, images[trait].shadow, images['bodies'].grey,
                                              (0, 0, 0, 127))
-
-
             except KeyError:
                 pass
             image2 = Image.fromarray(images[trait].data)
             image = ImageTk.PhotoImage(image2)
-            """
-            images[trait].set_trait_pattern2dic(character, 'headshapes', datas)
-            images[trait].set_trait_pattern2dic(character, 'eyes', datas)
-            images[trait].set_trait_pattern2dic(character, 'glasses', datas)"""
             self.pictures.append(image)
             self.canvas.create_image(250, 250, image=image)
 
@@ -222,7 +214,7 @@ class Application(tk.Tk):
 
     def draw_seed(self, character):
         """Draw the SEED used to Generate Random."""
-        number_width = 20
+        number_width = 18
         center_x = 267
         number_pos_y = 450
         str_seed = str(character.seed)
@@ -232,7 +224,7 @@ class Application(tk.Tk):
             img = ImageTk.PhotoImage(file=filepath)
             self.pictures.append(img)
             self.canvas.create_image(number_pos_x, number_pos_y, image=img)
-            number_pos_x += 20
+            number_pos_x += number_width
         self.canvas.update()
         self.current_character = character
         self.set_text_input(self.seed_field, str(character.seed))
