@@ -64,8 +64,11 @@ class Character:
                 item[1]['pattern'] = self.resources_path + 'patterns/0.png'
         # print()
         if 'hair' in self.parts['hats']['path']:
+            self.parts['hats']['color'] = self.parts['backhaircuts']['color']
             self.parts['haircuts']['path']=self.resources_path + 'haircuts/0.png'
             self.parts['backhaircuts']['path'] = self.resources_path + 'haircuts/0.png'
+        self.parts['haircuts']['color'] = self.parts['backhaircuts']['color']
+        self.parts['moustaches']['color'] = self.parts['backhaircuts']['color']
         self.parts['wrists']['color'] = self.parts['bodies']['color']
         self.parts['wrists']['pattern'] = self.parts['bodies']['pattern']
         self.parts['wrists']['pattern-color'] = self.parts['bodies']['pattern-color']
