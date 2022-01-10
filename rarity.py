@@ -1,3 +1,4 @@
+import math
 import os
 
 from PixelOperations import PixelOperations
@@ -8,29 +9,24 @@ class Rarity:
     def __init__(self) -> None:
         super().__init__()
 
-        self.rankings = {'common': {'probability':1/6, 'color': PixelOperations.grey},
-                         'uncommon': {'probability': 2/6, 'color': PixelOperations.green},
-                         'rare': {'probability': 3/6, 'color': PixelOperations.cyan},
-                         'epic': {'probability': 4/6, 'color': PixelOperations.purple},
-                         'legendary': {'probability': 5/6, 'color': PixelOperations.yellow},
-                         'unique': {'probability': 6/6, 'color': PixelOperations.orange}}
+        self.rankings = {'common': {'probability': 1 / 6, 'color': PixelOperations.grey},
+                         'uncommon': {'probability': 2 / 6, 'color': PixelOperations.green},
+                         'rare': {'probability': 3 / 6, 'color': PixelOperations.cyan},
+                         'epic': {'probability': 4 / 6, 'color': PixelOperations.purple},
+                         'legendary': {'probability': 5 / 6, 'color': PixelOperations.yellow},
+                         'unique': {'probability': 6 / 6, 'color': PixelOperations.orange}}
 
     def ranking(self, character):
         character.rarity = self.get_rarity_score(character)
-        print(character.rarity)
-        print("RARITY_SCORE : ", character.rarity)
-        print("RAREST_SCORE : ", self.get_rarest_score(character))
-        print("MOST_COMMON_SCORE : ", self.get_most_common_score(character))
 
         rarest_score = self.get_rarest_score(character)
         commonest_score = self.get_most_common_score(character)
 
-        ratio = 1 - ((character.rarity - rarest_score) / (commonest_score - rarest_score))
-        print('RATIO', ratio)
+        character.rarity = 1 - ((character.rarity - rarest_score) / (commonest_score - rarest_score))
         ranking = ''
         for item in self.rankings.items():
             ranking = item[0]
-            if ratio <= item[1]['probability']:
+            if character.rarity <= item[1]['probability']:
                 break
         return ranking
 
@@ -44,6 +40,7 @@ class Rarity:
             for file in files:
                 weights.append(int(file.split("_")[1]))
             scores.append(int(item[1]['path'].split('_')[1]) / sum(weights))
+
         return sum(scores) / len(scores)
 
     @staticmethod

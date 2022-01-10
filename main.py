@@ -4,9 +4,18 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 from application import Application
 from character import Character
+import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    new_character = Character()
+    """new_character = Character()
     app = Application()
     app.draw_char(new_character)
     app.mainloop()
+    """
+    rarities = []
+    for i in range(1000):
+        rarities.append(Character(i).rarity)
+    rarities.sort()
+    plt.plot(rarities)
+    plt.ylabel('some numbers')
+    plt.show()

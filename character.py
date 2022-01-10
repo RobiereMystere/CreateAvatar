@@ -33,9 +33,8 @@ class Character:
             'fingers': {'path': None, 'color': None, 'pattern': False, 'pattern-color': None}
         }
         self.ranking = ''
-        self.generate_traits()
         self.rarity = 0
-        print(self.ranking)
+        self.generate_traits()
         #
 
     def __eq__(self, character):
@@ -53,10 +52,7 @@ class Character:
         random_scale = 255
         for item in self.parts.items():
             files = os.listdir(self.resources_path + item[0])
-            print(item)
             probabilities = [int(file.split('_')[1]) for file in files]
-            print(probabilities)
-            print(self.rnd.choices(files, weights=probabilities))
             img_path = self.resources_path + item[0] + '/' + self.rnd.choices(files, weights=probabilities, k=1)[0]
             item[1]['path'] = img_path
             item[1]['color'] = PixelOperations.random_color(self.rnd, random_scale)
@@ -66,7 +62,6 @@ class Character:
                 item[1]['pattern'] = self.resources_path + 'patterns/' + self.rnd.choice(files)
             else:
                 item[1]['pattern'] = self.resources_path + 'patterns/0.png'
-        # print()
         if 'hair' in self.parts['hats']['path']:
             self.parts['hats']['color'] = self.parts['backhaircuts']['color']
             self.parts['haircuts']['path'] = self.resources_path + 'haircuts/0_10_.png'
@@ -77,6 +72,7 @@ class Character:
         self.parts['wrists']['pattern'] = self.parts['bodies']['pattern']
         self.parts['wrists']['pattern-color'] = self.parts['bodies']['pattern-color']
         self.parts['fingers']['color'] = self.parts['headshapes']['color']
+        self.rarity = Rarity().get_rarity_score(self)
         self.ranking = Rarity().ranking(self)
         self.parts['boards']['color'] = Rarity().rankings[self.ranking]['color']
 

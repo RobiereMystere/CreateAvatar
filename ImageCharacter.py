@@ -24,7 +24,6 @@ class ImageCharacter:
                     self.alpha > 100)
             self.transparent = (self.alpha < 10)
             if self.pattern_path is not None and '/0.png' not in self.pattern_path:
-                print(self.pattern_path)
                 self.pattern_data = self.image_file2data(self.pattern_path)
                 self.pattern_red, self.pattern_green, self.pattern_blue, self.pattern_alpha = self.pattern_data.T
                 self.pattern_areas = (self.pattern_red == 0) & (self.pattern_green == 0) & (self.pattern_blue == 255)
