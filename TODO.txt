@@ -3,10 +3,10 @@ REFACTOR
 
 CLEAN useless code in ImageCharacter Class
 
-ADD HairCut
+
+Add something to show rarity (board color ?)
+
 sparkly animation
-visible seed with every background
-hands+mugshot board
 
 Pictures as Objects (maintainability)
 

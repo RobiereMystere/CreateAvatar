@@ -16,7 +16,6 @@ class ImageCharacter:
         self.color = character.parts[trait]['color']
         if self.data is not None:
             self.red, self.green, self.blue, self.alpha = self.data.T
-            # self.white = (self.red + self.green + self.blue + self.alpha > 200 * 4)
             self.white = (self.red > 200) & (self.green > 200) & (self.blue > 200) & (self.alpha > 200)
             self.black = (self.red < 10) & (self.green < 10) & (self.blue < 10) & (self.alpha > 200)
             self.grey = (self.red <= 200) & (self.green <= 200) & (self.blue <= 200) & (self.alpha > 200) & \

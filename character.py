@@ -1,12 +1,14 @@
 import random
 import os
 
+from PixelOperations import PixelOperations
+
 
 class Character:
     """Character Object."""
+    resources_path = 'resources-alpha/'
 
     def __init__(self, seed: int = None) -> None:
-        self.resources_path = 'resources-alpha/'
         self.seed = seed
         if self.seed is None:
             # self.seed = random.randrange(sys.maxsize)
@@ -30,6 +32,8 @@ class Character:
             'fingers': {'path': None, 'color': None, 'pattern': False, 'pattern-color': None}
         }
         self.generate_traits()
+        self.rarity = 0
+        self.set_rarity()
         #
 
     def __eq__(self, character):
@@ -42,21 +46,36 @@ class Character:
                 return False
         return True
 
+    def set_rarity(self):
+        self.rarity = sum([int(self.parts[trait[0]]['path'].split("_")[1]) for trait in self.parts.items()])
+        print("RARITY_SCORE : ", self.rarity)
+        rarest_score = self.get_rarest_score()
+        print("RAREST_SCORE : ", rarest_score)
+        print("RAREST/RARITY : ", rarest_score / self.rarity)
+
+    def get_rarest_score(self):
+        min_weights = []
+        for item in self.parts.items():
+            weights = []
+            files = os.listdir(self.resources_path + item[0])
+            for file in files:
+                weights.append(int(file.split("_")[1]))
+            min_weights.append(min(weights))
+        return sum(min_weights)
+
     def generate_traits(self):
         """Randomly Sets traits of the Character."""
         random_scale = 255
         for item in self.parts.items():
             files = os.listdir(self.resources_path + item[0])
-            img_path = self.resources_path + item[0] + '/' + self.rnd.choice(files)
+            print(item)
+            probabilities = [int(file.split('_')[1]) for file in files]
+            print(probabilities)
+            print(self.rnd.choices(files, weights=probabilities))
+            img_path = self.resources_path + item[0] + '/' + self.rnd.choices(files, weights=probabilities, k=1)[0]
             item[1]['path'] = img_path
-            item[1]['color'] = (
-                int(self.rnd.random() * random_scale) * int(256 / random_scale),
-                int(self.rnd.random() * random_scale) * int(256 / random_scale),
-                int(self.rnd.random() * random_scale) * int(256 / random_scale))
-            item[1]['pattern-color'] = (
-                int(self.rnd.random() * random_scale) * int(256 / random_scale),
-                int(self.rnd.random() * random_scale) * int(256 / random_scale),
-                int(self.rnd.random() * random_scale) * int(256 / random_scale))
+            item[1]['color'] = PixelOperations.random_color(self.rnd, random_scale)
+            item[1]['pattern-color'] = PixelOperations.random_color(self.rnd, random_scale)
             files = os.listdir(self.resources_path + 'patterns')
             if item[1]['pattern'] and 'hair' not in item[1]['path']:
                 item[1]['pattern'] = self.resources_path + 'patterns/' + self.rnd.choice(files)
@@ -65,15 +84,15 @@ class Character:
         # print()
         if 'hair' in self.parts['hats']['path']:
             self.parts['hats']['color'] = self.parts['backhaircuts']['color']
-            self.parts['haircuts']['path']=self.resources_path + 'haircuts/0.png'
-            self.parts['backhaircuts']['path'] = self.resources_path + 'haircuts/0.png'
+            self.parts['haircuts']['path'] = self.resources_path + 'haircuts/0_10_.png'
+            self.parts['backhaircuts']['path'] = self.resources_path + 'backhaircuts/0_50_.png'
         self.parts['haircuts']['color'] = self.parts['backhaircuts']['color']
-        self.parts['moustaches']['color'] = self.parts['backhaircuts']['color']
+        self.parts['moustaches']['color'] = PixelOperations.darker(self.parts['backhaircuts']['color'])
         self.parts['wrists']['color'] = self.parts['bodies']['color']
         self.parts['wrists']['pattern'] = self.parts['bodies']['pattern']
         self.parts['wrists']['pattern-color'] = self.parts['bodies']['pattern-color']
         self.parts['fingers']['color'] = self.parts['headshapes']['color']
-        self.parts['boards']['color'] = (0, 0, 0)
+        self.parts['boards']['color'] = PixelOperations.black
         print(self.to_string())
 
     def to_string(self):
