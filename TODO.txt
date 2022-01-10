@@ -3,8 +3,7 @@ REFACTOR
 
 CLEAN useless code in ImageCharacter Class
 
-
-Add something to show rarity (board color ?)
+Rarity Problem Uncommon > Common :rofl:
 
 sparkly animation
 

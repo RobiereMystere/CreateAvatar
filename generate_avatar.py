@@ -183,12 +183,8 @@ class Application(tk.Tk):
         dark=10
         data = self.image_file2data(filepath)
         datapattern = self.image_file2data(os.getcwd()+"/"+character.parts[trait]['pattern'])
-        dicpattern={}
-        dicpattern['data']=datapattern
-        dicpattern['red'],\
-                dicpattern['green'],\
-                dicpattern['blue'],\
-                dicpattern['alpha']=dicpattern['data'].T
+        dicpattern= {'data': datapattern, 'red': (dicpattern['data'].T)[0], 'green': (dicpattern['data'].T)[1],
+                     'blue': (dicpattern['data'].T)[2], 'alpha': (dicpattern['data'].T)[3]}
         #
         dic['data']=data
         dic['red'],\
@@ -272,12 +268,8 @@ class Application(tk.Tk):
     def set_trait_pattern2dic(self,character,trait,datas):
         """set pattern of a trait into dictionary datas."""
         datapattern = self.image_file2data(os.getcwd()+"/"+character.parts[trait]['pattern'])
-        dicpattern={}
-        dicpattern['data']=datapattern
-        dicpattern['red'],\
-                dicpattern['green'],\
-                dicpattern['blue'],\
-                dicpattern['alpha']=dicpattern['data'].T
+        dicpattern= {'data': datapattern, 'red': (dicpattern['data'].T)[0], 'green': (dicpattern['data'].T)[1],
+                     'blue': (dicpattern['data'].T)[2], 'alpha': (dicpattern['data'].T)[3]}
         datas[trait]['pattern_areas'] = \
                 (dicpattern['red'] == 0)\
                 &(dicpattern['green'] == 0)\

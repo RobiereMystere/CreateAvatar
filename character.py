@@ -2,6 +2,7 @@ import random
 import os
 
 from PixelOperations import PixelOperations
+from rarity import Rarity
 
 
 class Character:
@@ -31,9 +32,10 @@ class Character:
             'boards': {'path': None, 'color': None, 'pattern': False, 'pattern-color': None},
             'fingers': {'path': None, 'color': None, 'pattern': False, 'pattern-color': None}
         }
+        self.ranking = ''
         self.generate_traits()
         self.rarity = 0
-        self.set_rarity()
+        print(self.ranking)
         #
 
     def __eq__(self, character):
@@ -45,23 +47,6 @@ class Character:
             if self.parts[part]['path'] != character.parts[part]['path']:
                 return False
         return True
-
-    def set_rarity(self):
-        self.rarity = sum([int(self.parts[trait[0]]['path'].split("_")[1]) for trait in self.parts.items()])
-        print("RARITY_SCORE : ", self.rarity)
-        rarest_score = self.get_rarest_score()
-        print("RAREST_SCORE : ", rarest_score)
-        print("RAREST/RARITY : ", rarest_score / self.rarity)
-
-    def get_rarest_score(self):
-        min_weights = []
-        for item in self.parts.items():
-            weights = []
-            files = os.listdir(self.resources_path + item[0])
-            for file in files:
-                weights.append(int(file.split("_")[1]))
-            min_weights.append(min(weights))
-        return sum(min_weights)
 
     def generate_traits(self):
         """Randomly Sets traits of the Character."""
@@ -92,8 +77,8 @@ class Character:
         self.parts['wrists']['pattern'] = self.parts['bodies']['pattern']
         self.parts['wrists']['pattern-color'] = self.parts['bodies']['pattern-color']
         self.parts['fingers']['color'] = self.parts['headshapes']['color']
-        self.parts['boards']['color'] = PixelOperations.black
-        print(self.to_string())
+        self.ranking = Rarity().ranking(self)
+        self.parts['boards']['color'] = Rarity().rankings[self.ranking]['color']
 
     def to_string(self):
         """Printable output for the character."""

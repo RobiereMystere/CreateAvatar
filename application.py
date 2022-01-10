@@ -14,6 +14,8 @@ class Application(tk.Tk):
 
     def __init__(self):
         tk.Tk.__init__(self)
+        self.list_box_files = None
+        self.list_box = None
         self.pictures = []
         self.current_character = None
         self.tk.call('wm', 'iconphoto', self._w, ImageTk.PhotoImage(file='icons/icon.ico'))
@@ -45,7 +47,6 @@ class Application(tk.Tk):
         tk.Label(self.opt_zone, text="File Name").grid(row=2, column=0)
         #
         self.filename_field = tk.Entry(self.opt_zone, width=20)
-        self.filename_field.grid(row=2, column=1)
         self.filename_field.bind('<Return>', self.save_picture)
         self.resolution_scales = {
             'width': tk.Scale(self.opt_zone,
@@ -70,7 +71,16 @@ class Application(tk.Tk):
         #
         tk.Button(self.opt_zone, text="SAVE", command=self.save_picture).grid(row=2, column=2)
         tk.Button(self.opt_zone, text="search SEED", command=self.search_seed).grid(row=3, column=2)
+        self.start_seed_field = tk.Entry(self.opt_zone, width=20)
+        self.start_seed_field.grid(row=4, column=2)
+        self.end_seed_field = tk.Entry(self.opt_zone, width=20)
+        self.end_seed_field.grid(row=5, column=2)
+        tk.Button(self.opt_zone, text="generate multiple", command=self.generate_multiple).grid(row=6, column=2)
 
+    def generate_multiple(self):
+        for seed in range(int(self.start_seed_field.get()),int(self.end_seed_field.get())):
+            self.new_character_seed(seed=seed)
+            self.save_picture()
     def search_seed(self):
         seed = 0
         character = Character(seed)
@@ -95,8 +105,8 @@ class Application(tk.Tk):
             index = int(w.curselection()[0])
             value = w.get(index)
             print(value, self.current_character.parts[self.selected_trait])
-            self.current_character.parts[self.selected_trait]['path'] = self.current_character.resources_path \
-                                                                        + self.selected_trait + '/' + value
+            self.current_character.parts[self.selected_trait]['path'] = self.current_character.resources_path + \
+                                                                        self.selected_trait + '/' + value
         self.draw_char()
 
     def on_select(self, evt):
@@ -136,23 +146,22 @@ class Application(tk.Tk):
         img = img.resize(
             (self.resolution_scales['width'].get(), self.resolution_scales['height'].get())
             , resample=0)
-        img.save("saves/" + filename)
+        img.save("saves/" + self.current_character.ranking+"_"+filename)
         print("saved as ", filename)
         #
 
-    @staticmethod
-    def clear(ctx):
-        """clears all elements."""
-        for widgets in ctx.winfo_children():
-            widgets.destroy()
-        #
+    def clear(self):
+        self.canvas.destroy()
+        self.canvas = tk.Canvas(self.canvas_zone, width=500, height=500)
+        self.canvas.pack()
 
-    def new_character_seed(self, event=None):
+    def new_character_seed(self, event=None,seed=None):
         """Create new character with seed set manually."""
         if event is not None:
             print("<RETURN>", event)
         try:
-            seed = int(self.seed_field.get())
+            if seed is None:
+                seed = int(self.seed_field.get())
         except ValueError:
             seed = 0
         self.draw_char(Character(seed=seed))
@@ -166,7 +175,9 @@ class Application(tk.Tk):
 
     def draw_char(self, character=None):
         """Draw a Character."""
-        self.clear(self.canvas)
+        self.clear()
+        self.pictures = []
+
         if character is None:
             character = self.current_character
         images = {}
