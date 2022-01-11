@@ -22,11 +22,11 @@ class Rarity:
         rarest_score = self.get_rarest_score(character)
         commonest_score = self.get_most_common_score(character)
 
-        character.rarity = 1 - ((character.rarity - rarest_score) / (commonest_score - rarest_score))
+        character.rarity = 1-((character.rarity - rarest_score) / (commonest_score - rarest_score))
         ranking = ''
         for item in self.rankings.items():
             ranking = item[0]
-            if character.rarity <= item[1]['probability']:
+            if character.rarity >= item[1]['probability']:
                 break
         return ranking
 
@@ -39,9 +39,12 @@ class Rarity:
             files = os.listdir(character.resources_path + item[0])
             for file in files:
                 weights.append(int(file.split("_")[1]))
-            scores.append(int(item[1]['path'].split('_')[1]) / sum(weights))
-
-        return sum(scores) / len(scores)
+            if len(weights) > 1:
+                scores.append(int(item[1]['path'].split('_')[1]) / sum(weights))
+                print(int(item[1]['path'].split('_')[1]))
+                print('sum weights', sum(weights))
+        print(scores)
+        return 1 - sum(scores) / len(scores)
 
     @staticmethod
     def get_rarest_score(character):
@@ -52,9 +55,10 @@ class Rarity:
             files = os.listdir(character.resources_path + item[0])
             for file in files:
                 weights.append(int(file.split("_")[1]))
-            min_weights.append(min(weights) / sum(weights))
-            k += 1
-        return sum(min_weights) / k
+            if len(weights) > 1:
+                min_weights.append(min(weights) / sum(weights))
+                k += 1
+        return 1 - (sum(min_weights) / k)
 
     @staticmethod
     def get_most_common_score(character):
@@ -65,6 +69,7 @@ class Rarity:
             files = os.listdir(character.resources_path + item[0])
             for file in files:
                 weights.append(int(file.split("_")[1]))
-            max_weights.append(max(weights) / sum(weights))
-            k += 1
-        return sum(max_weights) / k
+            if len(weights) > 1:
+                max_weights.append(max(weights) / sum(weights))
+                k += 1
+        return 1 - (sum(max_weights) / k)

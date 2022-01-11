@@ -5,6 +5,8 @@ CLEAN useless code in ImageCharacter Class
 
 Rarity Problem Uncommon > Common :rofl:
 
+Analyse Rarity On a Pool
+
 sparkly animation
 
 Pictures as Objects (maintainability)
