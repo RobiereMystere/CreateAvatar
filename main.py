@@ -13,12 +13,12 @@ if __name__ == "__main__":
     app.mainloop()
     """
     rarities = []
-    for i in range(10000):
+    for i in range(1000):
         rarities.append(Character(i).rarity)
     rarities.sort()
     plt.plot(rarities)
-    for n in range(1, 7):
+    '''for n in range(1, 7):
         print(n)
-        plt.axhline(y=n / 6., color='r')
+        plt.axhline(y=n / 6., color='r')'''
     plt.ylabel('some numbers')
     plt.show()

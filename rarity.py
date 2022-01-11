@@ -22,7 +22,7 @@ class Rarity:
         rarest_score = self.get_rarest_score(character)
         commonest_score = self.get_most_common_score(character)
 
-        character.rarity = 1-((character.rarity - rarest_score) / (commonest_score - rarest_score))
+        character.rarity = 1 - ((character.rarity - rarest_score) / (commonest_score - rarest_score))
         ranking = ''
         for item in self.rankings.items():
             ranking = item[0]
@@ -32,7 +32,7 @@ class Rarity:
 
     @staticmethod
     def get_rarity_score(character):
-        scores = []
+        current_probas = []
         k = 0
         for item in character.parts.items():
             weights = []
@@ -40,11 +40,21 @@ class Rarity:
             for file in files:
                 weights.append(int(file.split("_")[1]))
             if len(weights) > 1:
-                scores.append(int(item[1]['path'].split('_')[1]) / sum(weights))
+                current_prob = int(item[1]['path'].split('_')[1]) / sum(weights)
+                current_probas.append(current_prob)
                 print(int(item[1]['path'].split('_')[1]))
                 print('sum weights', sum(weights))
-        print(scores)
-        return 1 - sum(scores) / len(scores)
+            probabilities = []
+            for weight in weights:
+                probabilities.append(weight / sum(weights))
+            special_proba = []
+            for current_prob in current_probas:
+                special_proba.append(1 - (current_prob / (sum(probabilities) - current_prob)))
+            rarities = []
+            for current_prob in current_probas:
+                rarities.append(1 - (current_prob / (sum(probabilities) - current_prob)) / sum(special_proba))
+            print(item[0], 'rarities ', rarities)
+        return sum(rarities)
 
     @staticmethod
     def get_rarest_score(character):
