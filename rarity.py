@@ -54,7 +54,7 @@ class Rarity:
             for current_prob in current_probas:
                 rarities.append(1 - (current_prob / (sum(probabilities) - current_prob)) / sum(special_proba))
             print(item[0], 'rarities ', rarities)
-        return sum(rarities)
+        return sum(special_proba)
 
     @staticmethod
     def get_rarest_score(character):
