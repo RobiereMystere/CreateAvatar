@@ -1,7 +1,7 @@
-import math
 import os
 
 from PixelOperations import PixelOperations
+from character import Character
 
 
 class Rarity:
@@ -30,6 +30,11 @@ class Rarity:
                 break
         return ranking
 
+    @staticmethod
+    def get_rarity(trait):
+        files = os.listdir(Character.resources_path + trait)
+        for i in files:
+            print(i.split('_')[1])
     @staticmethod
     def get_rarity_score(character):
         current_probas = []

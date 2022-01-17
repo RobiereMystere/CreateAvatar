@@ -2,7 +2,6 @@ import random
 import os
 
 from PixelOperations import PixelOperations
-from rarity import Rarity
 
 
 class Character:

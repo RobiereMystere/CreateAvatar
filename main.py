@@ -4,9 +4,8 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import random
 
-from application import Application
-from character import Character
-import matplotlib.pyplot as plt
+
+import rarity
 
 
 def get_rarity_score(pick, elems, weights):
@@ -19,6 +18,8 @@ def get_rarity_score(pick, elems, weights):
 
 
 if __name__ == "__main__":
+    rarity.Rarity.get_rarity("headshapes")
+
     """new_character = Character()
     app = Application()
     app.draw_char(new_character)
@@ -32,7 +33,7 @@ if __name__ == "__main__":
     plt.plot(rarities)'''
     '''for n in range(1, 7):
         print(n)
-        plt.axhline(y=n / 6., color='r')'''
+        plt.axhline(y=n / 6., color='r')
     rnd = random.Random(99)
     elems = [0, 1, 2, 3, 4, 5]
     weights = [50, 30, 20, 1, 200, 50]
@@ -52,3 +53,4 @@ if __name__ == "__main__":
     plt.plot(all_rarities)
     plt.ylabel('some numbers')
     plt.show()
+'''
