@@ -3,9 +3,9 @@ REFACTOR
 
 CLEAN useless code in ImageCharacter Class
 
-Rarity Problem Uncommon > Common :rofl:
-
 Analyse Rarity On a Pool
+
+find better way to save Pictures that works in background
 
 sparkly animation
 

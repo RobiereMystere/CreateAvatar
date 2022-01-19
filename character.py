@@ -2,6 +2,7 @@ import random
 import os
 
 from PixelOperations import PixelOperations
+import rarity
 
 
 class Character:
@@ -71,9 +72,9 @@ class Character:
         self.parts['wrists']['pattern'] = self.parts['bodies']['pattern']
         self.parts['wrists']['pattern-color'] = self.parts['bodies']['pattern-color']
         self.parts['fingers']['color'] = self.parts['headshapes']['color']
-        self.rarity = Rarity().get_rarity_score(self)
-        self.ranking = Rarity().ranking(self)
-        self.parts['boards']['color'] = Rarity().rankings[self.ranking]['color']
+        self.rarity = rarity.Rarity.get_rarity_score(self)
+        self.ranking = rarity.Rarity().ranking(self)
+        self.parts['boards']['color'] = rarity.Rarity().rankings[self.ranking]['color']
 
     def to_string(self):
         """Printable output for the character."""

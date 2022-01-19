@@ -78,9 +78,10 @@ class Application(tk.Tk):
         tk.Button(self.opt_zone, text="generate multiple", command=self.generate_multiple).grid(row=6, column=2)
 
     def generate_multiple(self):
-        for seed in range(int(self.start_seed_field.get()),int(self.end_seed_field.get())):
+        for seed in range(int(self.start_seed_field.get()), int(self.end_seed_field.get())):
             self.new_character_seed(seed=seed)
             self.save_picture()
+
     def search_seed(self):
         seed = 0
         character = Character(seed)
@@ -146,7 +147,7 @@ class Application(tk.Tk):
         img = img.resize(
             (self.resolution_scales['width'].get(), self.resolution_scales['height'].get())
             , resample=0)
-        img.save("saves/" + self.current_character.ranking+"_"+filename)
+        img.save("saves/" + self.current_character.ranking + "_" + filename)
         print("saved as ", filename)
         #
 
@@ -155,7 +156,7 @@ class Application(tk.Tk):
         self.canvas = tk.Canvas(self.canvas_zone, width=500, height=500)
         self.canvas.pack()
 
-    def new_character_seed(self, event=None,seed=None):
+    def new_character_seed(self, event=None, seed=None):
         """Create new character with seed set manually."""
         if event is not None:
             print("<RETURN>", event)

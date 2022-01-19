@@ -1,3 +1,4 @@
+import math
 import os
 
 from PixelOperations import PixelOperations
@@ -17,52 +18,51 @@ class Rarity:
                          'unique': {'probability': 6 / 6, 'color': PixelOperations.orange}}
 
     def ranking(self, character):
-        character.rarity = self.get_rarity_score(character)
-
-        rarest_score = self.get_rarest_score(character)
-        commonest_score = self.get_most_common_score(character)
-
-        character.rarity = 1 - ((character.rarity - rarest_score) / (commonest_score - rarest_score))
-        ranking = ''
-        for item in self.rankings.items():
-            ranking = item[0]
-            if character.rarity >= item[1]['probability']:
+        ranking = 'common'
+        rarities = []
+        for trait in character.parts:
+            weight = int(character.parts[trait]['path'].split('_')[1])
+            rarities.append(Rarity.get_rarity(trait)[weight])
+        # ranking = (sum(rarities))
+        print(rarities)
+        score = math.prod(rarities)
+        for key, value in self.rankings.items():
+            if score < value['probability']:
+                ranking = key
                 break
         return ranking
 
     @staticmethod
     def get_rarity(trait):
         files = os.listdir(Character.resources_path + trait)
-        for i in files:
-            print(i.split('_')[1])
-    @staticmethod
-    def get_rarity_score(character):
-        current_probas = []
-        k = 0
-        for item in character.parts.items():
-            weights = []
-            files = os.listdir(character.resources_path + item[0])
-            for file in files:
-                weights.append(int(file.split("_")[1]))
-            if len(weights) > 1:
-                current_prob = int(item[1]['path'].split('_')[1]) / sum(weights)
-                current_probas.append(current_prob)
-                print(int(item[1]['path'].split('_')[1]))
-                print('sum weights', sum(weights))
-            probabilities = []
-            for weight in weights:
-                probabilities.append(weight / sum(weights))
-            special_proba = []
-            for current_prob in current_probas:
-                special_proba.append(1 - (current_prob / (sum(probabilities) - current_prob)))
-            rarities = []
-            for current_prob in current_probas:
-                rarities.append(1 - (current_prob / (sum(probabilities) - current_prob)) / sum(special_proba))
-            print(item[0], 'rarities ', rarities)
-        return sum(special_proba)
 
-    @staticmethod
-    def get_rarest_score(character):
+        weights = []
+        for i in files:
+            weights.append(int(i.split('_')[1]))
+        if len(weights) == 1:
+            return {1: 1.0}
+        sum_weights = sum(weights)
+        proba_picks = []
+        for weight in weights:
+            proba_picks.append(weight / sum_weights)
+        sum_proba_picks = sum(proba_picks)
+        raw_rarities = []
+        for proba_pick in proba_picks:
+            raw_rarities.append(proba_pick / (sum_proba_picks - proba_pick))
+        rarities = {}
+        index = 0
+        for raw_rarity in raw_rarities:
+            rarities[weights[index]] = (raw_rarity / max(raw_rarities))
+            index += 1
+        return rarities
+
+    @classmethod
+    def get_rarity_score(cls, character):
+        for trait in character.parts:
+            return Rarity.get_rarity(trait)
+
+    @classmethod
+    def get_rarest_score(cls, character):
         min_weights = []
         k = 0
         for item in character.parts.items():
