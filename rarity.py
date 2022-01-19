@@ -9,13 +9,13 @@ class Rarity:
 
     def __init__(self) -> None:
         super().__init__()
-
-        self.rankings = {'common': {'probability': 1 / 6, 'color': PixelOperations.grey},
-                         'uncommon': {'probability': 2 / 6, 'color': PixelOperations.green},
-                         'rare': {'probability': 3 / 6, 'color': PixelOperations.cyan},
-                         'epic': {'probability': 4 / 6, 'color': PixelOperations.purple},
-                         'legendary': {'probability': 5 / 6, 'color': PixelOperations.yellow},
-                         'unique': {'probability': 6 / 6, 'color': PixelOperations.orange}}
+        self.rankings = {'common': {'probability': 1 - 0.984375, 'color': PixelOperations.grey},
+                         'uncommon': {'probability': 1 - 0.96875, 'color': PixelOperations.green},
+                         'rare': {'probability': 1 - 0.9375, 'color': PixelOperations.cyan},
+                         'epic': {'probability': 1 - 0.875, 'color': PixelOperations.purple},
+                         'legendary': {'probability': 1 - 0.75, 'color': PixelOperations.yellow},
+                         'unique': {'probability': 0.5, 'color': PixelOperations.orange}
+                         }
 
     def ranking(self, character):
         ranking = 'common'
@@ -23,8 +23,6 @@ class Rarity:
         for trait in character.parts:
             weight = int(character.parts[trait]['path'].split('_')[1])
             rarities.append(Rarity.get_rarity(trait)[weight])
-        # ranking = (sum(rarities))
-        print(rarities)
         score = math.prod(rarities)
         for key, value in self.rankings.items():
             if score < value['probability']:
@@ -35,7 +33,6 @@ class Rarity:
     @staticmethod
     def get_rarity(trait):
         files = os.listdir(Character.resources_path + trait)
-
         weights = []
         for i in files:
             weights.append(int(i.split('_')[1]))

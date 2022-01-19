@@ -14,6 +14,7 @@ class Application(tk.Tk):
 
     def __init__(self):
         tk.Tk.__init__(self)
+        self.picture = None
         self.list_box_files = None
         self.list_box = None
         self.pictures = []
@@ -132,24 +133,11 @@ class Application(tk.Tk):
         """Saves Picture."""
         if event is not None:
             print("<RETURN>", event)
-        pos_x = tk.Canvas.winfo_rootx(self.canvas)
-        pos_y = tk.Canvas.winfo_rooty(self.canvas)
-        width = tk.Canvas.winfo_width(self.canvas)
-        height = tk.Canvas.winfo_height(self.canvas)
         filename = self.filename_field.get()
         if len(filename) == 0:
             filename = str(self.current_character.seed) + ".png"
-        img = ImageGrab.grab(bbox=(pos_x,
-                                   pos_y,
-                                   pos_x + width,
-                                   pos_y + height))
-
-        img = img.resize(
-            (self.resolution_scales['width'].get(), self.resolution_scales['height'].get())
-            , resample=0)
-        img.save("saves/" + self.current_character.ranking + "_" + filename)
+        self.picture.save("saves/" + self.current_character.ranking + "_" + filename)
         print("saved as ", filename)
-        #
 
     def clear(self):
         self.canvas.destroy()
@@ -176,9 +164,10 @@ class Application(tk.Tk):
 
     def draw_char(self, character=None):
         """Draw a Character."""
+        image2 = None
         self.clear()
         self.pictures = []
-
+        self.picture = None
         if character is None:
             character = self.current_character
         images = {}
@@ -217,11 +206,18 @@ class Application(tk.Tk):
                                              (0, 0, 0, 127))
             except KeyError:
                 pass
-            image2 = Image.fromarray(images[trait].data)
+            image3 = Image.fromarray(images[trait].data)
+
+            if image2 is None:
+                image2 = Image.fromarray(images[trait].data)
+            else:
+                image2.alpha_composite(image3)
+
             image = ImageTk.PhotoImage(image2)
+
             self.pictures.append(image)
             self.canvas.create_image(250, 250, image=image)
-
+        self.picture = image2
         self.draw_seed(character)
 
     def draw_seed(self, character):
@@ -234,8 +230,10 @@ class Application(tk.Tk):
         for digit in str_seed:
             filepath = os.getcwd() + "/" + character.resources_path + "numbers/" + digit + ".png"
             img = ImageTk.PhotoImage(file=filepath)
+            img2 = Image.open(filepath)
             self.pictures.append(img)
             self.canvas.create_image(number_pos_x, number_pos_y, image=img)
+            self.picture.alpha_composite(img2, (int(number_pos_x)-10, int(number_pos_y)-10))
             number_pos_x += number_width
         self.canvas.update()
         self.current_character = character
