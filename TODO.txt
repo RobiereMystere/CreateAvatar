@@ -5,11 +5,10 @@ CLEAN useless code in ImageCharacter Class
 
 Analyse Rarity On a Pool
 
-find better way to save Pictures that works in background
-
 sparkly animation
 
 Pictures as Objects (maintainability)
 
 ReConceptualize Picture system as One Picture
 
+UML
