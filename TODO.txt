@@ -12,3 +12,7 @@ Pictures as Objects (maintainability)
 ReConceptualize Picture system as One Picture
 
 UML
+
+Error Handling
+
+replace Tkinter by PyQt

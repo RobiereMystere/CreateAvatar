@@ -1,8 +1,6 @@
 import math
 import os
-
 from PixelOperations import PixelOperations
-from character import Character
 
 
 class Rarity:
@@ -22,7 +20,7 @@ class Rarity:
         rarities = []
         for trait in character.parts:
             weight = int(character.parts[trait]['path'].split('_')[1])
-            rarities.append(Rarity.get_rarity(trait)[weight])
+            rarities.append(Rarity.get_rarity(trait, character)[weight])
         score = math.prod(rarities)
         for key, value in self.rankings.items():
             if score < value['probability']:
@@ -31,8 +29,8 @@ class Rarity:
         return ranking
 
     @staticmethod
-    def get_rarity(trait):
-        files = os.listdir(Character.resources_path + trait)
+    def get_rarity(trait, character):
+        files = os.listdir(character.resources_path + trait)
         weights = []
         for i in files:
             weights.append(int(i.split('_')[1]))
@@ -56,7 +54,7 @@ class Rarity:
     @classmethod
     def get_rarity_score(cls, character):
         for trait in character.parts:
-            return Rarity.get_rarity(trait)
+            return Rarity.get_rarity(trait, character)
 
     @classmethod
     def get_rarest_score(cls, character):

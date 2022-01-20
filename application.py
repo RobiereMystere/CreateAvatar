@@ -1,9 +1,8 @@
 """Randomly Generate Avatars Module."""
-import tkinter as tk
 import os
-import pyscreenshot as ImageGrab
+import tkinter as tk
+
 from PIL import Image, ImageTk
-import numpy as np
 
 from ImageCharacter import ImageCharacter
 from character import Character
@@ -48,6 +47,7 @@ class Application(tk.Tk):
         tk.Label(self.opt_zone, text="File Name").grid(row=2, column=0)
         #
         self.filename_field = tk.Entry(self.opt_zone, width=20)
+        self.filename_field.grid(row=2, column=1)
         self.filename_field.bind('<Return>', self.save_picture)
         self.resolution_scales = {
             'width': tk.Scale(self.opt_zone,
